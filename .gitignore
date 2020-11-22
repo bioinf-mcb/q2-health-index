@@ -8,6 +8,7 @@ __pycache__/
 
 # Distribution / packaging
 .Python
+venv/
 env/
 build/
 develop-eggs/
@@ -67,3 +68,8 @@ target/
 # qiime
 *.qza
 *.qzv
+
+# User-stuff
+.idea/workspace.xml
+.idea/misc.xml
+.idea/q2-health-index.iml

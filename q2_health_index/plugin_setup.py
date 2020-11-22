@@ -1,7 +1,8 @@
-import q2_health_index
+`import q2_health_index
 
 from q2_health_index._hello import print_hello
-from qiime2.plugin import (Plugin, Citations)
+from qiime2.plugin import (Plugin, Citations, Metadata, Visualization)
+from q2_types.feature_table import (RelativeFrequency)
 
 
 plugin = Plugin(
@@ -19,11 +20,17 @@ plugin = Plugin(
 )
 
 plugin.visualizers.register_function(
-    function=print_hello,
-    inputs={},
-    parameters={},
-    input_descriptions={},
-    parameter_descriptions={},
-    name='Print hello.',
-    description='Print hello on the screen.'
+    function=calculate_gmhi,
+    inputs={'table': FeatureTable[RelativeFrequency],
+            'list': '.txt'},
+    parameters={'metadata': Metadata},
+    outputs=[('gmhi_plot', Visualization),
+             ('gmhi_results', 'table of gmhi values for each sample')],
+    input_descriptions={'table': 'The relative frequency feature table to calculate Gut Microbiome Health Index from.',
+                        'list' : 'List of healthy and non-healthy bacteria species in .txt'},
+    parameter_descriptions={'metadata': 'Sample metadata containing  '
+                                        'individual_id_column, and other metadata for use in '
+                                        'Gut Microbiome Health Index Calculation.'},
+    name='Calculate GMHI.',
+    description='Calculate Gut Microbial Health index based on input strains.'
 )
