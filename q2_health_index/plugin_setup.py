@@ -19,7 +19,7 @@ plugin = Plugin(
     short_description='Plugin for calculating the Gut Microbiome Health Index (GMHI).'
 )
 
-plugin.visualizers.register_function(
+plugin.methods.register_function(
     function=calculate_gmhi,
     inputs={'table': FeatureTable[RelativeFrequency],
             'list': '.txt'},
