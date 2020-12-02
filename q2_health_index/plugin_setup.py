@@ -3,6 +3,7 @@
 from q2_health_index._hello import print_hello
 from qiime2.plugin import (Plugin, Citations, Metadata, Visualization)
 from q2_types.feature_table import (RelativeFrequency)
+from q2_types.feature_data import (Taxonomy)
 
 
 plugin = Plugin(
@@ -22,15 +23,17 @@ plugin = Plugin(
 plugin.methods.register_function(
     function=calculate_gmhi,
     inputs={'table': FeatureTable[RelativeFrequency],
-            'list': '.txt'},
+            'list_healthy': FeatureData[Taxonomy],
+            'list_non_healthy': FeatureData[Taxonomy]},
     parameters={'metadata': Metadata},
     outputs=[('gmhi_plot', Visualization),
-             ('gmhi_results', 'table of gmhi values for each sample')],
+             ('gmhi_results', Metadata)],
     input_descriptions={'table': 'The relative frequency feature table to calculate Gut Microbiome Health Index from.',
-                        'list' : 'List of healthy and non-healthy bacteria species in .txt'},
+                        'list_healthy' : 'List of healthy species imported as FeatureData[Taxonomy] artifact',
+                        'list_non_healthy' : 'List of non-healthy species imported as FeatureData[Taxonomy] artifact'},
     parameter_descriptions={'metadata': 'Sample metadata containing  '
                                         'individual_id_column, and other metadata for use in '
                                         'Gut Microbiome Health Index Calculation.'},
-    name='Calculate GMHI.',
-    description='Calculate Gut Microbial Health index based on input strains.'
+    name='Calculate GMHI',
+    description='Calculate and plot Gut Microbial Health Index based on input data.'
 )
