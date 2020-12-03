@@ -22,13 +22,13 @@ plugin = Plugin(
 
 plugin.methods.register_function(
     function=calculate_gmhi,
-    inputs={'table': FeatureTable[RelativeFrequency],
+    inputs={'table': FeatureTable[Frequency],
             'list_healthy': FeatureData[Taxonomy],
             'list_non_healthy': FeatureData[Taxonomy]},
     parameters={'metadata': Metadata},
     outputs=[('gmhi_plot', Visualization),
              ('gmhi_results', Metadata)],
-    input_descriptions={'table': 'The relative frequency feature table to calculate Gut Microbiome Health Index from.',
+    input_descriptions={'table': 'The feature frequency table to calculate Gut Microbiome Health Index from.',
                         'list_healthy' : 'List of healthy species imported as FeatureData[Taxonomy] artifact',
                         'list_non_healthy' : 'List of non-healthy species imported as FeatureData[Taxonomy] artifact'},
     parameter_descriptions={'metadata': 'Sample metadata containing  '
