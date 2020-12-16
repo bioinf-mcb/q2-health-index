@@ -1,0 +1,22 @@
+# import txt to biom
+
+biom convert -i file.txt \
+ -o table.biom \
+ --table-type=“OTU table” \
+ --to-hdf5
+
+# import to qiime2
+
+qiime tools import \
+ --input-path table.biom \
+ --type 'FeatureTable[Frequency]' \ **'FeatureTable[RelativeFrequency]'
+ --input-format BIOMV210Format \
+ --output-path table.qza
+ 
+# visualize
+
+qiime feature-table summarize \
+ --i-table table.qza \
+ --o-visualization table.qzv
+ 
+
