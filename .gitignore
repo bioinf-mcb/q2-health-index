@@ -61,13 +61,10 @@ target/
 
 #Ipython Notebook
 .ipynb_checkpoints
+notebooks/.ipynb_checkpoints
 
 # vi
 .*.swp
-
-# qiime
-*.qza
-*.qzv
 
 # User-stuff
 .idea/
