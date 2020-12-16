@@ -1,10 +1,10 @@
-`import q2_health_index
+import q2_health_index
 
-from q2_health_index._hello import print_hello
-from qiime2.plugin import (Plugin, Citations, Metadata, Visualization)
-from q2_types.feature_table import (RelativeFrequency)
-from q2_types.feature_data import (Taxonomy)
-
+from q2_health_index._gmhi import calculate_gmhi
+from qiime2.plugin import (Str, Plugin, Citations, Metadata, Visualization)
+from q2_types.feature_table import (Frequency, FeatureTable)
+from q2_types.feature_data import (Taxonomy, FeatureData)
+from q2_types.sample_data import (SampleData, AlphaDiversity)
 
 plugin = Plugin(
     name='health-index',
@@ -20,20 +20,30 @@ plugin = Plugin(
     short_description='Plugin for calculating the Gut Microbiome Health Index (GMHI).'
 )
 
-plugin.methods.register_function(
+plugin.pipelines.register_function(
     function=calculate_gmhi,
-    inputs={'table': FeatureTable[Frequency],
-            'list_healthy': FeatureData[Taxonomy],
-            'list_non_healthy': FeatureData[Taxonomy]},
-    parameters={'metadata': Metadata},
-    outputs=[('gmhi_plot', Visualization),
-             ('gmhi_results', Metadata)],
-    input_descriptions={'table': 'The feature frequency table to calculate Gut Microbiome Health Index from.',
-                        'list_healthy' : 'List of healthy species imported as FeatureData[Taxonomy] artifact',
-                        'list_non_healthy' : 'List of non-healthy species imported as FeatureData[Taxonomy] artifact'},
-    parameter_descriptions={'metadata': 'Sample metadata containing  '
-                                        'individual_id_column, and other metadata for use in '
-                                        'Gut Microbiome Health Index Calculation.'},
+    inputs={'table': FeatureTable[Frequency]},
+    parameters={
+        'metadata': Metadata,
+        'healthy_species': Str,
+        'non_healthy_species': Str
+    },
+    outputs=[
+        ('gmhi_results', SampleData[AlphaDiversity]),
+        # ('gmhi_plot', Visualization)
+    ],
+    input_descriptions={'table': 'The feature frequency table to '
+                                 'calculate Gut Microbiome Health Index from.'},
+    parameter_descriptions={
+        'metadata': 'Sample metadata containing individual_id_column '
+                    'and healthy_column used in GMHI calculation.',
+        'healthy_species': 'Path to file with healthy species.',
+        'non_healthy_species': 'Path to file with non-healthy species.',
+    },
+    output_descriptions={
+        'gmhi_results': 'Calculated GMHI in tabular form.',
+        # 'gmhi_plot': 'Plot showing calculated GMHI distribution.'
+    },
     name='Calculate GMHI',
     description='Calculate and plot Gut Microbial Health Index based on input data.'
 )
