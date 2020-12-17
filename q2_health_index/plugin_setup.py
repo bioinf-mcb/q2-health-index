@@ -2,8 +2,7 @@ import q2_health_index
 
 from q2_health_index._gmhi import calculate_gmhi
 from qiime2.plugin import (Str, Plugin, Citations, Metadata, Visualization)
-from q2_types.feature_table import (Frequency, FeatureTable)
-from q2_types.feature_data import (Taxonomy, FeatureData)
+from q2_types.feature_table import (FeatureTable, Frequency, RelativeFrequency)
 from q2_types.sample_data import (SampleData, AlphaDiversity)
 
 plugin = Plugin(
@@ -22,9 +21,12 @@ plugin = Plugin(
 
 plugin.pipelines.register_function(
     function=calculate_gmhi,
-    inputs={'table': FeatureTable[Frequency]},
+    inputs={'table': FeatureTable[Frequency | RelativeFrequency]},
     parameters={
         'metadata': Metadata,
+        'healthy_column': Str,
+        'healthy_states': Str,
+        'non_healthy_states': Str,
         'healthy_species': Str,
         'non_healthy_species': Str
     },
@@ -37,8 +39,15 @@ plugin.pipelines.register_function(
     parameter_descriptions={
         'metadata': 'Sample metadata containing individual_id_column '
                     'and healthy_column used in GMHI calculation.',
+        'healthy_column': 'Metadata column that describes healthy and non healthy samples.',
+        'healthy_states': 'Comma separated list of \'healthy_column\' values '
+                          'that identify healthy samples. Type \'rest\' if all but not that '
+                          'in \'non_healthy_states\' should be included.',
+        'non_healthy_states': 'Comma separated list of \'healthy_column\' values '
+                          'that identify non healthy samples. Type \'rest\' if all but not that '
+                          'in \'healthy_states\' should be included.',
         'healthy_species': 'Path to file with healthy species.',
-        'non_healthy_species': 'Path to file with non-healthy species.',
+        'non_healthy_species': 'Path to file with non-healthy species.'
     },
     output_descriptions={
         'gmhi_results': 'Calculated GMHI in tabular form.',
