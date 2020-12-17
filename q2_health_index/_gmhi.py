@@ -14,12 +14,12 @@ def calculate_gmhi(ctx,
                    healthy_column=None,
                    healthy_states=None,
                    non_healthy_states=None,
-                   healthy_species=None,
-                   non_healthy_species=None):
+                   healthy_species_fp=None,
+                   non_healthy_species_fp=None):
 
     # load and validate species lists
     healthy_species_list, non_healthy_species_list = \
-        _load_and_validate_species(healthy_species, non_healthy_species)
+        _load_and_validate_species(healthy_species_fp, non_healthy_species_fp)
 
     # load and validate metadata
     metadata = _load_metadata(metadata)

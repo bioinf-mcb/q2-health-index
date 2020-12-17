@@ -27,8 +27,8 @@ plugin.pipelines.register_function(
         'healthy_column': Str,
         'healthy_states': Str,
         'non_healthy_states': Str,
-        'healthy_species': Str,
-        'non_healthy_species': Str
+        'healthy_species_fp': Str,
+        'non_healthy_species_fp': Str
     },
     outputs=[
         ('gmhi_results', SampleData[AlphaDiversity]),
@@ -46,8 +46,8 @@ plugin.pipelines.register_function(
         'non_healthy_states': 'Comma separated list of \'healthy_column\' values '
                           'that identify non healthy samples. Type \'rest\' if all but not that '
                           'in \'healthy_states\' should be included.',
-        'healthy_species': 'Path to file with healthy species.',
-        'non_healthy_species': 'Path to file with non-healthy species.'
+        'healthy_species_fp': 'Path to file with healthy species.',
+        'non_healthy_species_fp': 'Path to file with non-healthy species.'
     },
     output_descriptions={
         'gmhi_results': 'Calculated GMHI in tabular form.',

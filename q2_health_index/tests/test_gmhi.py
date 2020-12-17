@@ -9,12 +9,15 @@ import qiime2
 
 from qiime2.plugin.testing import TestPluginBase
 from qiime2.plugins import health_index
-from q2_health_index._utilities import (_load_and_validate_species, _load_metadata,
+from q2_health_index._utilities import (_load_file, _load_and_validate_species, _load_metadata,
                                         _validate_metadata_is_superset,
-                                        HEALTHY_SPECIES_DEFAULT, NON_HEALTHY_SPECIES_DEFAULT)
+                                        HEALTHY_SPECIES_DEFAULT_FP, NON_HEALTHY_SPECIES_DEFAULT_FP)
 
 filterwarnings("ignore", category=UserWarning)
 filterwarnings("ignore", category=RuntimeWarning)
+
+HEALTHY_SPECIES_DEFAULT = _load_file(HEALTHY_SPECIES_DEFAULT_FP)
+NON_HEALTHY_SPECIES_DEFAULT = _load_file(NON_HEALTHY_SPECIES_DEFAULT_FP)
 
 
 class TestUtilities(TestPluginBase):
@@ -30,32 +33,32 @@ class TestUtilities(TestPluginBase):
     def test_species_load_healthy_wrong(self):
         with self.assertRaisesRegex(FileNotFoundError, "No such file or directory"):
             infile = self.get_data_path("input/species/do-not-exists.txt")
-            _load_and_validate_species(list_healthy=infile)
+            _load_and_validate_species(healthy_species_fp=infile)
 
     def test_species_load_non_healthy_wrong(self):
         with self.assertRaisesRegex(FileNotFoundError, "No such file or directory"):
             infile = self.get_data_path("input/species/do-not-exists.txt")
-            _load_and_validate_species(list_non_healthy=infile)
+            _load_and_validate_species(non_healthy_species_fp=infile)
 
     def test_species_load_healthy_empty(self):
         with self.assertRaisesRegex(ValueError, "Healthy species list is empty!"):
             infile = self.get_data_path("input/species/empty_species.txt")
-            _load_and_validate_species(list_healthy=infile)
+            _load_and_validate_species(healthy_species_fp=infile)
 
     def test_species_load_non_healthy_empty(self):
         with self.assertRaisesRegex(ValueError, "Non-healthy species list is empty!"):
             infile = self.get_data_path("input/species/empty_species.txt")
-            _load_and_validate_species(list_non_healthy=infile)
+            _load_and_validate_species(non_healthy_species_fp=infile)
 
     def test_species_load_healthy_fake(self):
         infile = self.get_data_path("input/species/fake_MH_species.txt")
-        healthy, non_healthy = _load_and_validate_species(list_healthy=infile)
+        healthy, non_healthy = _load_and_validate_species(healthy_species_fp=infile)
         self.assertListEqual(healthy, ['s__fake_1', 's__fake_2'])
         self.assertListEqual(non_healthy, NON_HEALTHY_SPECIES_DEFAULT)
 
     def test_species_load_non_healthy_fake(self):
         infile = self.get_data_path("input/species/fake_MN_species.txt")
-        healthy, non_healthy = _load_and_validate_species(list_non_healthy=infile)
+        healthy, non_healthy = _load_and_validate_species(non_healthy_species_fp=infile)
         self.assertListEqual(non_healthy, ['s__fake_non_1', 's__fake_non_2', 's__fake_non_3'])
         self.assertListEqual(healthy, HEALTHY_SPECIES_DEFAULT)
 
@@ -105,8 +108,8 @@ class TestUtilities(TestPluginBase):
             healthy_column='phenotype',
             healthy_states='Healthy',
             non_healthy_states='rest',
-            healthy_species=None,
-            non_healthy_species=None)
+            healthy_species_fp=None,
+            non_healthy_species_fp=None)
         gmhi = pd.to_numeric(res[0].view(pd.Series))
         gmhi_exp = pd.read_csv(
             self.get_data_path("expected/4347_final_gmhi.tsv"),
