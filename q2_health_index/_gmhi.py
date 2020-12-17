@@ -1,9 +1,8 @@
 import pandas as pd
-
+import os
 
 from q2_health_index._utilities import (_load_and_validate_species,
                                         _load_metadata)
-
 
 def calculate_gmhi(ctx,
                    table=None,
@@ -16,10 +15,8 @@ def calculate_gmhi(ctx,
 
     metadata = _load_metadata(metadata)
 
-    # TODO CALCULATE GMHI (BELOW WE ARE CREATING FAKE DATA!!!)
-
-    gmhi = pd.Series(data=[-3.438, -2.08342, 0.345],
-                   index=['ACVD_1', 'ACVD_2', 'ACVD_3'], name='GMHI')
-
+    # TODO CALCULATE GMHI (BELOW WE ARE JUST LOADING EXPECTED DATA !!!!)
+    expected = os.path.join(os.path.dirname(__file__), 'tests/data/expected/4347_final_gmhi.tsv')
+    gmhi = pd.read_csv(expected, sep='\t', index_col=0, header=0, squeeze=True)
     gmhi_artifact = ctx.make_artifact('SampleData[AlphaDiversity]', gmhi)
     return gmhi_artifact
