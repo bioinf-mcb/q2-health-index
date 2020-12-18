@@ -31,8 +31,6 @@ def calculate_gmhi(ctx,
         _validate_and_extract_healthy_states(metadata, healthy_column,
                                              healthy_states, non_healthy_states)
 
-    print(metadata.index)
-    print(healthy_states.shape)
     # TODO Pawel: move to separate function and add test (dada2_table.qza)
     # load and convert feature table (if needed)
     if table.type == FeatureTable[Frequency]:
