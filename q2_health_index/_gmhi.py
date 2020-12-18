@@ -1,3 +1,11 @@
+# ----------------------------------------------------------------------------
+# Copyright (c) 2020, Bioinformatics at Małopolska Centre of Biotechnology.
+#
+# Distributed under the terms of the Modified BSD License.
+#
+# The full license is in the file LICENSE, distributed with this software.
+# ----------------------------------------------------------------------------
+
 import pandas as pd
 import os
 import biom
@@ -23,12 +31,12 @@ def calculate_gmhi(ctx,
         _load_and_validate_species(healthy_species_fp, non_healthy_species_fp)
 
     # load and validate metadata
-    metadata = _load_metadata(metadata)
-    _validate_metadata_is_superset(metadata, table.view(biom.Table))
+    metadata_df = _load_metadata(metadata)
+    _validate_metadata_is_superset(metadata_df, table.view(biom.Table))
 
     # validate and extract (non) healthy states
     healthy_states, non_healthy_states = \
-        _validate_and_extract_healthy_states(metadata, healthy_column,
+        _validate_and_extract_healthy_states(metadata_df, healthy_column,
                                              healthy_states, non_healthy_states)
 
     # TODO Pawel: move to separate function and add test (dada2_table.qza)
@@ -44,4 +52,5 @@ def calculate_gmhi(ctx,
     # TODO Pawel: add visualization
 
     gmhi_artifact = ctx.make_artifact('SampleData[AlphaDiversity]', gmhi)
+
     return gmhi_artifact
