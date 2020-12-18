@@ -104,8 +104,8 @@ class TestUtilities(TestPluginBase):
         metadata_file = self.get_data_path("input/metadata/simple_metadata.tsv")
         metadata = _load_metadata(qiime2.Metadata.load(metadata_file))
         hs, ns = _validate_and_extract_healthy_states(metadata, 'Healthy', 'Y', 'N,Sick')
-        self.assertListEqual(hs, ['Y'])
-        self.assertListEqual(ns, ['N', 'Sick'])
+        self.assertSequenceEqual(hs, ['Y'])
+        self.assertListEqual(sorted(ns), sorted(['N', 'Sick']))
         _validate_and_extract_healthy_states(metadata, 'Healthy', 'Y', 'rest')
         _validate_and_extract_healthy_states(metadata, 'Healthy', 'rest', 'N,Sick')
 

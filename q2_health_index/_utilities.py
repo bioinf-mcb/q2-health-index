@@ -78,7 +78,7 @@ def _validate_and_extract_healthy_states(metadata: pd.DataFrame = None,
                                  f'by any members of \'{healthy_column}\' column '
                                  'in metadata. Consider using a different '
                                  'healthy_column or state value.')
-    if set(healthy_states) == set(non_healthy_states):
+    if sorted(healthy_states) == sorted(non_healthy_states):
         raise ValueError(f'healthy_states and non_healthy_states '
                          f'parameters cannot be equal.')
     # TODO Consider a case when metadata dataset is superior wrt feature table
