@@ -1,17 +1,20 @@
 import unittest
-import pandas as pd
-import pandas.util.testing as pdt
-import biom
-
 from warnings import filterwarnings
 
+import biom
+import pandas as pd
+import pandas.util.testing as pdt
 import qiime2
-
 from qiime2.plugin.testing import TestPluginBase
 from qiime2.plugins import health_index
-from q2_health_index._utilities import (_load_file, _load_and_validate_species, _load_metadata,
+
+from q2_health_index._utilities import (_load_file,
+                                        _load_metadata,
+                                        _load_and_validate_species,
                                         _validate_metadata_is_superset,
-                                        HEALTHY_SPECIES_DEFAULT_FP, NON_HEALTHY_SPECIES_DEFAULT_FP)
+                                        _validate_and_extract_healthy_states,
+                                        HEALTHY_SPECIES_DEFAULT_FP,
+                                        NON_HEALTHY_SPECIES_DEFAULT_FP)
 
 filterwarnings("ignore", category=UserWarning)
 filterwarnings("ignore", category=RuntimeWarning)
@@ -97,6 +100,70 @@ class TestUtilities(TestPluginBase):
             table = qiime2.Artifact.load(table_file)
             _validate_metadata_is_superset(metadata, table.view(biom.Table))
 
+    def test_healthy_states_correct_simple(self):
+        metadata_file = self.get_data_path("input/metadata/simple_metadata.tsv")
+        metadata = _load_metadata(qiime2.Metadata.load(metadata_file))
+        hs, ns = _validate_and_extract_healthy_states(metadata, 'Healthy', 'Y', 'N,Sick')
+        self.assertListEqual(hs, ['Y'])
+        self.assertListEqual(ns, ['N', 'Sick'])
+        _validate_and_extract_healthy_states(metadata, 'Healthy', 'Y', 'rest')
+        _validate_and_extract_healthy_states(metadata, 'Healthy', 'rest', 'N,Sick')
+
+    def test_healthy_states_parameters_not_provided(self):
+        metadata_file = self.get_data_path("input/metadata/simple_metadata.tsv")
+        metadata = _load_metadata(qiime2.Metadata.load(metadata_file))
+        with self.assertRaisesRegex(ValueError, "healthy_column parameter not provided!"):
+            _validate_and_extract_healthy_states(metadata, None, 'Y', 'N,Sick')
+        with self.assertRaisesRegex(ValueError, "healthy_states parameter not provided!"):
+            _validate_and_extract_healthy_states(metadata, 'Col', None, 'Par')
+        with self.assertRaisesRegex(ValueError, "non_healthy_states parameter not provided!"):
+            _validate_and_extract_healthy_states(metadata, 'Col', 'Par', None)
+
+    def test_healthy_states_wrong_healthy_column(self):
+        with self.assertRaisesRegex(ValueError, "\'Col\' is not a column in your metadata."):
+            metadata_file = self.get_data_path("input/metadata/simple_metadata.tsv")
+            metadata = _load_metadata(qiime2.Metadata.load(metadata_file))
+            _validate_and_extract_healthy_states(metadata, 'Col', 'Par', 'Par')
+
+    def test_healthy_states_both_states_rest(self):
+        with self.assertRaisesRegex(ValueError, f'healthy_states and non_healthy_states '
+                                                f'parameters cannot be equal.'):
+            metadata_file = self.get_data_path("input/metadata/simple_metadata.tsv")
+            metadata = _load_metadata(qiime2.Metadata.load(metadata_file))
+            _validate_and_extract_healthy_states(metadata, 'Healthy', 'rest', 'rest')
+
+    def test_healthy_states_both_states_equal(self):
+        with self.assertRaisesRegex(ValueError, f'healthy_states and non_healthy_states '
+                                                f'parameters cannot be equal.'):
+            metadata_file = self.get_data_path("input/metadata/simple_metadata.tsv")
+            metadata = _load_metadata(qiime2.Metadata.load(metadata_file))
+            _validate_and_extract_healthy_states(metadata, 'Healthy', 'N,Sick,N', 'Sick,N,Sick')
+
+    def test_healthy_states_healthy_state_wrong(self):
+        with self.assertRaisesRegex(ValueError, f'Healthy state \'Par1\' is not represented '
+                                                f'by any members of \'Healthy\' column in metadata.'):
+            metadata_file = self.get_data_path("input/metadata/simple_metadata.tsv")
+            metadata = _load_metadata(qiime2.Metadata.load(metadata_file))
+            _validate_and_extract_healthy_states(metadata, 'Healthy', 'Par1', 'Par2')
+
+    def test_healthy_states_non_healthy_state_wrong(self):
+        with self.assertRaisesRegex(ValueError, f'Non-healthy state \'Par2\' is not represented '
+                                                f'by any members of \'Healthy\' column in metadata.'):
+            metadata_file = self.get_data_path("input/metadata/simple_metadata.tsv")
+            metadata = _load_metadata(qiime2.Metadata.load(metadata_file))
+            _validate_and_extract_healthy_states(metadata, 'Healthy', 'Y', 'Par2')
+
+    def test_healthy_states_non_healthy_state_wrong(self):
+        with self.assertRaisesRegex(ValueError, f'Number of healthy and non-healthy state values '
+                                                f'is not equal to the number of rows in metadata.'):
+            metadata_file = self.get_data_path("input/metadata/simple_metadata.tsv")
+            metadata = _load_metadata(qiime2.Metadata.load(metadata_file))
+            _validate_and_extract_healthy_states(metadata, 'Healthy', 'Y', 'N')
+
+
+class TestCalculateGmhi(TestPluginBase):
+    package = 'q2_health_index.tests'
+
     def test_calculate_gmhi_4347_final(self):
         table_file = self.get_data_path("input/abundances/4347_final_relative_abundances.qza")
         metadata_file = self.get_data_path("input/metadata/4347_final_metadata.tsv")
@@ -117,10 +184,6 @@ class TestUtilities(TestPluginBase):
         pdt.assert_series_equal(
             gmhi, gmhi_exp, check_dtype=False, check_index_type=False,
             check_series_type=False, check_names=False)
-
-
-class TestCalculateGmhi(TestPluginBase):
-    package = 'q2_health_index.tests'
 
 
 if __name__ == '__main__':

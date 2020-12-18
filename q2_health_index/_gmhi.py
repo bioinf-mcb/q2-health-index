@@ -6,7 +6,8 @@ from q2_types.feature_table import (FeatureTable, Frequency)
 from q2_health_index._utilities import (_load_and_validate_species,
                                         _load_metadata,
                                         _validate_metadata_is_superset,
-                                        _validate_metadata_healthy_column)
+                                        _validate_and_extract_healthy_states)
+
 
 def calculate_gmhi(ctx,
                    table=None,
@@ -25,10 +26,13 @@ def calculate_gmhi(ctx,
     metadata = _load_metadata(metadata)
     _validate_metadata_is_superset(metadata, table.view(biom.Table))
 
-    # validate (non) healthy states and healthy column
-    _validate_metadata_healthy_column(metadata, healthy_column,
-                                      healthy_states, non_healthy_states)
+    # validate and extract (non) healthy states
+    healthy_states, non_healthy_states = \
+        _validate_and_extract_healthy_states(metadata, healthy_column,
+                                             healthy_states, non_healthy_states)
 
+    print(metadata.index)
+    print(healthy_states.shape)
     # TODO Pawel: move to separate function and add test (dada2_table.qza)
     # load and convert feature table (if needed)
     if table.type == FeatureTable[Frequency]:
@@ -38,7 +42,6 @@ def calculate_gmhi(ctx,
     # TODO Valentyn: CALCULATE GMHI (BELOW WE ARE JUST LOADING EXPECTED DATA !!!!)
     expected = os.path.join(os.path.dirname(__file__), 'tests/data/expected/4347_final_gmhi.tsv')
     gmhi = pd.read_csv(expected, sep='\t', index_col=0, header=0, squeeze=True)
-
 
     # TODO Pawel: add visualization
 

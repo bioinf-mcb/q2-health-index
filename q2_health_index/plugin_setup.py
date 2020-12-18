@@ -37,15 +37,16 @@ plugin.pipelines.register_function(
     input_descriptions={'table': 'The feature frequency table to '
                                  'calculate Gut Microbiome Health Index from.'},
     parameter_descriptions={
-        'metadata': 'Sample metadata containing individual_id_column '
-                    'and healthy_column used in GMHI calculation.',
+        'metadata': 'Sample metadata containing healthy_column used in GMHI calculation.',
         'healthy_column': 'Metadata column that describes healthy and non healthy samples.',
-        'healthy_states': 'Comma separated list of \'healthy_column\' values '
-                          'that identify healthy samples. Type \'rest\' if all but not that '
-                          'in \'non_healthy_states\' should be included.',
-        'non_healthy_states': 'Comma separated list of \'healthy_column\' values '
-                          'that identify non healthy samples. Type \'rest\' if all but not that '
-                          'in \'healthy_states\' should be included.',
+        'healthy_states': 'Comma-separated list (without spaces) of metadata '
+                          'healthy_column values that identify healthy samples. '
+                          'Type \'rest\' if all values except that in non_healthy_states '
+                          'should be included.',
+        'non_healthy_states': 'Comma-separated list (without spaces) of metadata '
+                          'healthy_column values that identify non-healthy samples. '
+                          'Type \'rest\' if all values except that in healthy_states '
+                          'should be included.',
         'healthy_species_fp': 'Path to file with healthy species.',
         'non_healthy_species_fp': 'Path to file with non-healthy species.'
     },
