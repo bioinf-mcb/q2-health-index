@@ -9,7 +9,7 @@
 import q2_health_index
 
 from q2_health_index._gmhi import calculate_gmhi
-from qiime2.plugin import (Str, Plugin, Citations, Metadata, Visualization)
+from qiime2.plugin import (Str, Float, Plugin, Citations, Metadata, Visualization)
 from q2_types.feature_table import (FeatureTable, Frequency, RelativeFrequency)
 from q2_types.sample_data import (SampleData, AlphaDiversity)
 
@@ -37,6 +37,7 @@ plugin.pipelines.register_function(
         'non_healthy_states': Str,
         'healthy_species_fp': Str,
         'non_healthy_species_fp': Str
+        'rel_thresh': Float
     },
     outputs=[
         ('gmhi_results', SampleData[AlphaDiversity]),
@@ -56,7 +57,8 @@ plugin.pipelines.register_function(
                           'Type \'rest\' if all values except that in healthy_states '
                           'should be included.',
         'healthy_species_fp': 'Path to file with healthy species.',
-        'non_healthy_species_fp': 'Path to file with non-healthy species.'
+        'non_healthy_species_fp': 'Path to file with non-healthy species.',
+        'rel_thresh': 'Relative frequency based threshold for discarding insignificant OTU'
     },
     output_descriptions={
         'gmhi_results': 'Calculated GMHI in tabular form.',
