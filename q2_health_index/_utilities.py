@@ -1,10 +1,10 @@
-# ----------------------------------------------------------------------------
-# Copyright (c) 2020, Bioinformatics at Małopolska Centre of Biotechnology.
+# -----------------------------------------------------------------------------
+# Copyright (c) 2020-2021, Bioinformatics at Małopolska Centre of Biotechnology
 #
 # Distributed under the terms of the Modified BSD License.
 #
 # The full license is in the file LICENSE, distributed with this software.
-# ----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 import pandas as pd
 import biom
@@ -23,7 +23,8 @@ def _load_and_validate_species(healthy_species_fp: str = None,
     healthy_species = _load_file(healthy_species_fp) \
         if healthy_species_fp else _load_file(HEALTHY_SPECIES_DEFAULT_FP)
     non_healthy_species = _load_file(non_healthy_species_fp) \
-        if non_healthy_species_fp else _load_file(NON_HEALTHY_SPECIES_DEFAULT_FP)
+        if non_healthy_species_fp else \
+        _load_file(NON_HEALTHY_SPECIES_DEFAULT_FP)
 
     if not healthy_species:
         raise ValueError('Healthy species list is empty!')
@@ -68,24 +69,27 @@ def _validate_and_extract_healthy_states(metadata: pd.DataFrame = None,
     if not non_healthy_states:
         raise ValueError('non_healthy_states parameter not provided!')
     if healthy_column not in metadata.columns:
-        raise ValueError(f'\'{healthy_column}\' is not a column in your metadata.')
+        raise ValueError(f'\'{healthy_column}\' is not a column in your '
+                         f'metadata.')
     # States validation
     if not healthy_states == 'rest':
         healthy_states = list(set(healthy_states.split(",")))
         for state in healthy_states:
             if state not in metadata[healthy_column].values:
-                raise ValueError(f'Healthy state \'{state}\' is not represented '
-                                 f'by any members of \'{healthy_column}\' column '
-                                 'in metadata. Consider using a different '
-                                 'healthy_column or state value.')
+                raise ValueError(f'Healthy state \'{state}\' is not '
+                                 f'represented by any members of '
+                                 f'\'{healthy_column}\' column in metadata. '
+                                 f'Consider using a different healthy_column '
+                                 f'or state value.')
     if not non_healthy_states == 'rest':
         non_healthy_states = list(set(non_healthy_states.split(",")))
         for state in non_healthy_states:
             if state not in metadata[healthy_column].values:
-                raise ValueError(f'Non-healthy state \'{state}\' is not represented '
-                                 f'by any members of \'{healthy_column}\' column '
-                                 'in metadata. Consider using a different '
-                                 'healthy_column or state value.')
+                raise ValueError(f'Non-healthy state \'{state}\' is not '
+                                 f'represented by any members of '
+                                 f'\'{healthy_column}\' column in metadata. '
+                                 f'Consider using a different healthy_column '
+                                 f'or state value.')
     if sorted(healthy_states) == sorted(non_healthy_states):
         raise ValueError(f'healthy_states and non_healthy_states '
                          f'parameters cannot be equal.')
@@ -93,8 +97,10 @@ def _validate_and_extract_healthy_states(metadata: pd.DataFrame = None,
     # and contains additional (not relevant) state values
     if not healthy_states == 'rest' and not non_healthy_states == 'rest':
         number_of_state_values = sum([(metadata[healthy_column] == i).sum()
-                                      for i in healthy_states + non_healthy_states])
+                                      for i in healthy_states +
+                                      non_healthy_states])
         if number_of_state_values != len(metadata):
-            raise ValueError(f'Number of healthy and non-healthy state values '
-                             f'is not equal to the number of rows in metadata.')
+            raise ValueError(f'Number of healthy and non-healthy state '
+                             f'values is not equal to the number of '
+                             f'rows in metadata.')
     return healthy_states, non_healthy_states
