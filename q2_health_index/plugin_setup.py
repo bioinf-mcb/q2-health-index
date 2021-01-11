@@ -36,7 +36,7 @@ plugin.pipelines.register_function(
         'healthy_states': Str,
         'non_healthy_states': Str,
         'healthy_species_fp': Str,
-        'non_healthy_species_fp': Str
+        'non_healthy_species_fp': Str,
         'rel_thresh': Float
     },
     outputs=[

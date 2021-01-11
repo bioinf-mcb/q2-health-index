@@ -26,7 +26,7 @@ def calculate_gmhi(ctx,
                    non_healthy_states=None,
                    healthy_species_fp=None,
                    non_healthy_species_fp=None,
-                   rel_thresh=None):
+                   rel_thresh=0.00001):
 
     # load and validate species lists
     healthy_species_list, non_healthy_species_list = \

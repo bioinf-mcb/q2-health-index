@@ -161,7 +161,7 @@ class TestUtilities(TestPluginBase):
             metadata = _load_metadata(qiime2.Metadata.load(metadata_file))
             _validate_and_extract_healthy_states(metadata, 'Healthy', 'Y', 'Par2')
 
-    def test_healthy_states_non_healthy_state_wrong(self):
+    def test_healthy_states_non_healthy_state_different(self):
         with self.assertRaisesRegex(ValueError, f'Number of healthy and non-healthy state values '
                                                 f'is not equal to the number of rows in metadata.'):
             metadata_file = self.get_data_path("input/metadata/simple_metadata.tsv")
@@ -187,7 +187,7 @@ class TestCalculateGmhi(TestPluginBase):
             non_healthy_species_fp=None)
         gmhi = pd.to_numeric(res[0].view(pd.Series))
         gmhi_exp = pd.read_csv(
-            self.get_data_path("expected/4347_final_gmhi.tsv"),
+            self.get_data_path("expected/4347_final_gmhi_Python.tsv"),
             sep='\t', index_col=0, header=0, squeeze=True)
         pdt.assert_series_equal(
             gmhi, gmhi_exp, check_dtype=False, check_index_type=False,

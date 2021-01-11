@@ -25,8 +25,6 @@ setup(
     },
     package_data={
         'q2_health_index.tests': ['data/*'],
-        # TODO: remove 'tests/data/expected/*' after implementing calculate_gmhi !!!!
-        'q2_health_index': ['data/*', 'tests/data/expected/*',
-                            'assets/index.html', 'citations.bib']},
+        'q2_health_index': ['data/*', 'assets/index.html', 'citations.bib']},
     zip_safe=False,
 )
