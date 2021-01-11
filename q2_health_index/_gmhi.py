@@ -101,9 +101,16 @@ def calculate_gmhi(ctx,
     psi_MH = (R_MH / MH_prime) * MH_shannon
     psi_MN = (R_MN / MN_prime) * MN_shannon
     gmhi_df = np.log10((psi_MH + 0.00001) / (psi_MN + 0.00001))
+    gmhi_df.name = 'GMHI'
 
-    # TODO Pawel: add visualization
-
+    # Create artifact
     gmhi_artifact = ctx.make_artifact('SampleData[AlphaDiversity]', gmhi_df)
 
-    return gmhi_artifact
+    # Create visualization (box plots) similar to that from alpha-diversity
+    get_alpha_diversity_plot = ctx.get_action('diversity',
+                                              'alpha_group_significance')
+    gmhi_viz = get_alpha_diversity_plot(alpha_diversity=gmhi_artifact,
+                                   metadata=metadata)  # returns tuple
+
+    return gmhi_artifact, gmhi_viz[0]
+

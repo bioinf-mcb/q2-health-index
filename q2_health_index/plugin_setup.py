@@ -41,7 +41,7 @@ plugin.pipelines.register_function(
     },
     outputs=[
         ('gmhi_results', SampleData[AlphaDiversity]),
-        # ('gmhi_plot', Visualization)
+        ('gmhi_plot', Visualization)
     ],
     input_descriptions={'table': 'The feature frequency table to '
                                  'calculate Gut Microbiome Health Index from.'},
@@ -62,7 +62,7 @@ plugin.pipelines.register_function(
     },
     output_descriptions={
         'gmhi_results': 'Calculated GMHI in tabular form.',
-        # 'gmhi_plot': 'Plot showing calculated GMHI distribution.'
+        'gmhi_plot': 'Bar plot showing calculated GMHI distribution.'
     },
     name='Calculate GMHI',
     description='Calculate and plot Gut Microbial Health Index based on input data.'
