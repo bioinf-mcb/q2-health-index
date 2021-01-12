@@ -10,7 +10,7 @@ import re
 import numpy as np
 import pandas as pd
 
-from q2_types.feature_table import (FeatureTable, Frequency)
+from q2_types.feature_table import (FeatureTable, Frequency, RelativeFrequency)
 from q2_health_index._utilities import (_load_and_validate_species,
                                         _load_metadata,
                                         _validate_metadata_is_superset,
@@ -26,24 +26,26 @@ def calculate_gmhi(ctx,
                    healthy_species_fp=None,
                    non_healthy_species_fp=None,
                    rel_thresh=0.00001):
-    # load and validate species lists
+
+    # Load and validate species lists
     healthy_species_list, non_healthy_species_list = \
         _load_and_validate_species(healthy_species_fp, non_healthy_species_fp)
 
-    # TODO Pawel: move to separate function and add test (dada2_table.qza)
-    # load and convert feature table (if needed)
+    # Load and convert feature table (if needed)
     if table.type == FeatureTable[Frequency]:
         get_relative = ctx.get_action('feature_table', 'relative_frequency')
         table, = get_relative(table=table)
-    # keep columns (rows) as samples (species)
+    assert table.type == FeatureTable[RelativeFrequency], \
+        'Feature table not of the type \'RelativeFrequency\''
+    # Keep columns (rows) as samples (species)
     table_df = table.view(pd.DataFrame).T
 
-    # load metadata
+    # Load metadata
     metadata_df = _load_metadata(metadata)
-    # limit metadata to samples preset in the feature table
+    # Limit metadata to samples preset in the feature table
     metadata_df = _validate_metadata_is_superset(metadata_df, table_df.T)
 
-    # validate and extract (non) healthy states
+    # Validate and extract (non) healthy states
     healthy_states, non_healthy_states = \
         _validate_and_extract_healthy_states(metadata_df,
                                              healthy_column,
@@ -80,7 +82,7 @@ def calculate_gmhi(ctx,
 
     constant = R_MH.rename('h').to_frame().join(R_MN.rename('n').to_frame())
 
-    # calculating kh and kn
+    # Calculating kh and kn
     # kh and kn are 1% of all healthy and non-healthy samples respectively
     if healthy_states != 'rest':
         n_healthy = metadata_df[healthy_column].str.contains(

@@ -7,7 +7,6 @@
 # -----------------------------------------------------------------------------
 
 import pandas as pd
-import biom
 import pkg_resources
 
 from qiime2.plugin import Metadata
@@ -46,7 +45,7 @@ def _load_metadata(metadata: Metadata = None):
     return metadata
 
 
-# borrowed from q2_longitudinal
+# Borrowed from q2_longitudinal
 def _validate_metadata_is_superset(metadata: pd.DataFrame = None,
                                    table: pd.DataFrame = None):
     metadata_ids = set(metadata.index.tolist())

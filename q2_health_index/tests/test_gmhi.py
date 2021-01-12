@@ -9,7 +9,6 @@
 import unittest
 from warnings import filterwarnings
 
-import biom
 import pandas as pd
 import pandas.util.testing as pdt
 import qiime2
