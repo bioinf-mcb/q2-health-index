@@ -9,7 +9,6 @@
 import re
 import numpy as np
 import pandas as pd
-import biom
 
 from q2_types.feature_table import (FeatureTable, Frequency)
 from q2_health_index._utilities import (_load_and_validate_species,
@@ -31,9 +30,18 @@ def calculate_gmhi(ctx,
     healthy_species_list, non_healthy_species_list = \
         _load_and_validate_species(healthy_species_fp, non_healthy_species_fp)
 
-    # load and validate metadata
+    # TODO Pawel: move to separate function and add test (dada2_table.qza)
+    # load and convert feature table (if needed)
+    if table.type == FeatureTable[Frequency]:
+        get_relative = ctx.get_action('feature_table', 'relative_frequency')
+        table, = get_relative(table=table)
+    # keep columns (rows) as samples (species)
+    table_df = table.view(pd.DataFrame).T
+
+    # load metadata
     metadata_df = _load_metadata(metadata)
-    _validate_metadata_is_superset(metadata_df, table.view(biom.Table))
+    # limit metadata to samples preset in the feature table
+    metadata_df = _validate_metadata_is_superset(metadata_df, table_df.T)
 
     # validate and extract (non) healthy states
     healthy_states, non_healthy_states = \
@@ -41,14 +49,6 @@ def calculate_gmhi(ctx,
                                              healthy_column,
                                              healthy_states,
                                              non_healthy_states)
-
-    # TODO Pawel: move to separate function and add test (dada2_table.qza)
-    # load and convert feature table (if needed)
-    if table.type == FeatureTable[Frequency]:
-        get_relative = ctx.get_action('feature_table', 'relative_frequency')
-        table, = get_relative(table=table)
-
-    table_df = table.view(pd.DataFrame).T
 
     # Removing unclassified and virus species suitable both for 16S and
     # Metagenome Sequencing if valid taxonomy is provided
@@ -83,15 +83,15 @@ def calculate_gmhi(ctx,
     # calculating kh and kn
     # kh and kn are 1% of all healthy and non-healthy samples respectively
     if healthy_states != 'rest':
-        n_healthy = table_df.columns.str.contains('|'.join(healthy_states),
-                                                  flags=re.I, regex=True).sum()
+        n_healthy = metadata_df[healthy_column].str.contains(
+            '|'.join(healthy_states), flags=re.I, regex=True).sum()
     elif non_healthy_states != 'rest':
-        n_non_healthy = table_df.columns.str.contains(
+        n_non_healthy = metadata_df[healthy_column].str.contains(
             '|'.join(non_healthy_states), flags=re.I, regex=True).sum()
     if healthy_states == 'rest':
-        n_healthy = len(table_df.columns) - n_non_healthy
+        n_healthy = len(metadata_df[healthy_column]) - n_non_healthy
     elif non_healthy_states == 'rest':
-        n_non_healthy = len(table_df.columns) - n_healthy
+        n_non_healthy = len(metadata_df[healthy_column]) - n_healthy
     kh = round(n_healthy / 100)
     kn = round(n_non_healthy / 100)
 

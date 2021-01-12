@@ -111,8 +111,9 @@ class TestUtilities(TestPluginBase):
         metadata_file = self.get_data_path(
             'input/metadata/simple_metadata.tsv')
         metadata = _load_metadata(qiime2.Metadata.load(metadata_file))
-        table = qiime2.Artifact.load(table_file)
-        _validate_metadata_is_superset(metadata, table.view(biom.Table))
+        table = qiime2.Artifact.load(table_file).view(pd.DataFrame)
+        metadata_new = _validate_metadata_is_superset(metadata, table)
+        self.assertListEqual(sorted(metadata_new.index), sorted(table.index))
 
     def test_metadata_validate_simple_wrong(self):
         with self.assertRaisesRegex(ValueError,
@@ -121,13 +122,17 @@ class TestUtilities(TestPluginBase):
             metadata_file = self.get_data_path("input/metadata"
                                                "/simple_metadata.tsv")
             metadata = _load_metadata(qiime2.Metadata.load(metadata_file))
-            table = qiime2.Artifact.load(table_file)
-            _validate_metadata_is_superset(metadata, table.view(biom.Table))
+            table = qiime2.Artifact.load(table_file).view(pd.DataFrame)
+            _validate_metadata_is_superset(metadata, table)
 
     def test_healthy_states_correct_simple(self):
+        table_file = self.get_data_path("input/abundances"
+                                        "/simple_relative_abundances.qza")
         metadata_file = self.get_data_path("input/metadata"
                                            "/simple_metadata.tsv")
         metadata = _load_metadata(qiime2.Metadata.load(metadata_file))
+        table = qiime2.Artifact.load(table_file).view(pd.DataFrame)
+        metadata = _validate_metadata_is_superset(metadata, table)
         hs, ns = _validate_and_extract_healthy_states(metadata,
                                                       'Healthy', 'Y', 'N,Sick')
         self.assertSequenceEqual(hs, ['Y'])
@@ -159,10 +164,10 @@ class TestUtilities(TestPluginBase):
             _validate_and_extract_healthy_states(metadata, 'Col', 'Par', 'Par')
 
     def test_healthy_states_both_states_rest(self):
-        with self.assertRaisesRegex(ValueError, f'healthy_states and '
-                                                f'non_healthy_states '
-                                                f'parameters cannot be '
-                                                f'equal.'):
+        with self.assertRaisesRegex(ValueError, 'healthy_states and '
+                                                'non_healthy_states '
+                                                'parameters cannot be '
+                                                'equal.'):
             metadata_file = self.get_data_path("input/metadata"
                                                "/simple_metadata.tsv")
             metadata = _load_metadata(qiime2.Metadata.load(metadata_file))
@@ -170,10 +175,10 @@ class TestUtilities(TestPluginBase):
                                                  'rest')
 
     def test_healthy_states_both_states_equal(self):
-        with self.assertRaisesRegex(ValueError, f'healthy_states and '
-                                                f'non_healthy_states '
-                                                f'parameters cannot be '
-                                                f'equal.'):
+        with self.assertRaisesRegex(ValueError, 'healthy_states and '
+                                                'non_healthy_states '
+                                                'parameters cannot be '
+                                                'equal.'):
             metadata_file = self.get_data_path("input/metadata"
                                                "/simple_metadata.tsv")
             metadata = _load_metadata(qiime2.Metadata.load(metadata_file))
@@ -181,10 +186,10 @@ class TestUtilities(TestPluginBase):
                                                  'N,Sick,N', 'Sick,N,Sick')
 
     def test_healthy_states_healthy_state_wrong(self):
-        with self.assertRaisesRegex(ValueError, f'Healthy state \'Par1\' is '
-                                                f'not represented by any '
-                                                f'members of \'Healthy\' '
-                                                f'column in metadata.'):
+        with self.assertRaisesRegex(ValueError, 'Healthy state \'Par1\' is '
+                                                'not represented by any '
+                                                'members of \'Healthy\' '
+                                                'column in metadata.'):
             metadata_file = self.get_data_path("input/metadata"
                                                "/simple_metadata.tsv")
             metadata = _load_metadata(qiime2.Metadata.load(metadata_file))
@@ -192,10 +197,10 @@ class TestUtilities(TestPluginBase):
                                                  'Par2')
 
     def test_healthy_states_non_healthy_state_wrong(self):
-        with self.assertRaisesRegex(ValueError, f'Non-healthy state \'Par2\' '
-                                                f'is not represented by any '
-                                                f'members of \'Healthy\' '
-                                                f'column in metadata.'):
+        with self.assertRaisesRegex(ValueError, 'Non-healthy state \'Par2\' '
+                                                'is not represented by any '
+                                                'members of \'Healthy\' '
+                                                'column in metadata.'):
             metadata_file = self.get_data_path("input/metadata"
                                                "/simple_metadata.tsv")
             metadata = _load_metadata(qiime2.Metadata.load(metadata_file))
@@ -203,10 +208,10 @@ class TestUtilities(TestPluginBase):
                                                  'Par2')
 
     def test_healthy_states_non_healthy_state_different(self):
-        with self.assertRaisesRegex(ValueError, f'Number of healthy and '
-                                                f'non-healthy state values '
-                                                f'is not equal to the number '
-                                                f'of rows in metadata.'):
+        with self.assertRaisesRegex(ValueError, 'Number of healthy and '
+                                                'non-healthy state values '
+                                                'is not equal to the number '
+                                                'of rows in metadata.'):
             metadata_file = self.get_data_path("input/metadata"
                                                "/simple_metadata.tsv")
             metadata = _load_metadata(qiime2.Metadata.load(metadata_file))

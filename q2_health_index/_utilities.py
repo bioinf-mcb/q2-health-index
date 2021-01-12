@@ -48,12 +48,15 @@ def _load_metadata(metadata: Metadata = None):
 
 # borrowed from q2_longitudinal
 def _validate_metadata_is_superset(metadata: pd.DataFrame = None,
-                                   table: biom.Table = None):
+                                   table: pd.DataFrame = None):
     metadata_ids = set(metadata.index.tolist())
-    table_ids = set(table.ids())
+    table_ids = set(table.index.tolist())
     missing_ids = table_ids.difference(metadata_ids)
     if len(missing_ids) > 0:
         raise ValueError(f'Missing samples in metadata: {missing_ids}')
+    # keep only relevant metadata
+    metadata = metadata.loc[table_ids]
+    return metadata
 
 
 def _validate_and_extract_healthy_states(metadata: pd.DataFrame = None,
@@ -91,16 +94,14 @@ def _validate_and_extract_healthy_states(metadata: pd.DataFrame = None,
                                  f'Consider using a different healthy_column '
                                  f'or state value.')
     if sorted(healthy_states) == sorted(non_healthy_states):
-        raise ValueError(f'healthy_states and non_healthy_states '
-                         f'parameters cannot be equal.')
-    # TODO Consider a case when metadata dataset is superior wrt feature table
-    # and contains additional (not relevant) state values
+        raise ValueError('healthy_states and non_healthy_states '
+                         'parameters cannot be equal.')
     if not healthy_states == 'rest' and not non_healthy_states == 'rest':
         number_of_state_values = sum([(metadata[healthy_column] == i).sum()
                                       for i in healthy_states +
                                       non_healthy_states])
         if number_of_state_values != len(metadata):
-            raise ValueError(f'Number of healthy and non-healthy state '
-                             f'values is not equal to the number of '
-                             f'rows in metadata.')
+            raise ValueError('Number of healthy and non-healthy state '
+                             'values is not equal to the number of '
+                             'rows in metadata.')
     return healthy_states, non_healthy_states
