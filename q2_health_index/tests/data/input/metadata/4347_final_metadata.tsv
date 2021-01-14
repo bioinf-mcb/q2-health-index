@@ -4347,3 +4347,5 @@ Underweight_4344		13	17.578125	M	Chinese	Underweight													No	No	Illumina 
 Underweight_4345		13	17.14677641	M	Chinese	Underweight													No	No	Illumina HiSeq 2000
 Underweight_4346		16	17.75568182	M	Chinese	Underweight													No	No	Illumina HiSeq 2000
 Underweight_4347		17	17.99307958	M	Chinese	Underweight													No	No	Illumina HiSeq 2000
+NonRelevantMetadata1		17	17.99307958	M	Chinese	WrongSickness													No	No	Illumina HiSeq 2000
+NonRelevantMetadata2		17	17.99307958	M	Chinese	Healthy													No	No	Illumina HiSeq 2000

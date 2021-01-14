@@ -1,15 +1,16 @@
-# ----------------------------------------------------------------------------
-# Copyright (c) 2020, Bioinformatics at Małopolska Centre of Biotechnology.
+# -----------------------------------------------------------------------------
+# Copyright (c) 2020-2021, Bioinformatics at Małopolska Centre of Biotechnology
 #
 # Distributed under the terms of the Modified BSD License.
 #
 # The full license is in the file LICENSE, distributed with this software.
-# ----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 import q2_health_index
 
 from q2_health_index._gmhi import calculate_gmhi
-from qiime2.plugin import (Str, Float, Plugin, Citations, Metadata, Visualization)
+from qiime2.plugin import (Str, Float, Plugin, Citations, Metadata,
+                           Visualization)
 from q2_types.feature_table import (FeatureTable, Frequency, RelativeFrequency)
 from q2_types.sample_data import (SampleData, AlphaDiversity)
 
@@ -24,7 +25,8 @@ plugin = Plugin(
                  'health and non-health prevalent taxa that can be later use '
                  'for calculating e.g. updated Gut Microbiome Health '
                  'Index .'),
-    short_description='Plugin for calculating the Gut Microbiome Health Index (GMHI).'
+    short_description='Plugin for calculating the Gut Microbiome Health '
+                      'Index (GMHI).'
 )
 
 plugin.pipelines.register_function(
@@ -36,34 +38,39 @@ plugin.pipelines.register_function(
         'healthy_states': Str,
         'non_healthy_states': Str,
         'healthy_species_fp': Str,
-        'non_healthy_species_fp': Str
+        'non_healthy_species_fp': Str,
         'rel_thresh': Float
     },
     outputs=[
         ('gmhi_results', SampleData[AlphaDiversity]),
-        # ('gmhi_plot', Visualization)
+        ('gmhi_plot', Visualization)
     ],
-    input_descriptions={'table': 'The feature frequency table to '
-                                 'calculate Gut Microbiome Health Index from.'},
+    input_descriptions={'table': 'The feature frequency table to calculate '
+                                 'Gut Microbiome Health Index from.'},
     parameter_descriptions={
-        'metadata': 'Sample metadata containing healthy_column used in GMHI calculation.',
-        'healthy_column': 'Metadata column that describes healthy and non healthy samples.',
+        'metadata': 'Sample metadata containing healthy_column used in GMHI '
+                    'calculation.',
+        'healthy_column': 'Metadata column that describes healthy and non '
+                          'healthy samples.',
         'healthy_states': 'Comma-separated list (without spaces) of metadata '
-                          'healthy_column values that identify healthy samples. '
-                          'Type \'rest\' if all values except that in non_healthy_states '
-                          'should be included.',
-        'non_healthy_states': 'Comma-separated list (without spaces) of metadata '
-                          'healthy_column values that identify non-healthy samples. '
-                          'Type \'rest\' if all values except that in healthy_states '
-                          'should be included.',
+                          'healthy_column values that identify healthy '
+                          'samples. Type \'rest\' if all values except that '
+                          'in non_healthy_states should be included.',
+        'non_healthy_states': 'Comma-separated list (without spaces) of '
+                              'metadata healthy_column values that identify '
+                              'non-healthy samples. Type \'rest\' if all '
+                              'values except that in healthy_states '
+                              'should be included.',
         'healthy_species_fp': 'Path to file with healthy species.',
         'non_healthy_species_fp': 'Path to file with non-healthy species.',
-        'rel_thresh': 'Relative frequency based threshold for discarding insignificant OTU'
+        'rel_thresh': 'Relative frequency based threshold for discarding '
+                      'insignificant OTU '
     },
     output_descriptions={
         'gmhi_results': 'Calculated GMHI in tabular form.',
-        # 'gmhi_plot': 'Plot showing calculated GMHI distribution.'
+        'gmhi_plot': 'Bar plot showing calculated GMHI distribution.'
     },
     name='Calculate GMHI',
-    description='Calculate and plot Gut Microbial Health Index based on input data.'
+    description='Calculate and plot Gut Microbial Health Index based on '
+                'input data. '
 )
