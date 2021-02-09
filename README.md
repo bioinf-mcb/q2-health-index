@@ -15,9 +15,34 @@ Paper's GitHub repository: https://github.com/jaeyunsung/GMHI_2020
 
 ## Installation
 
-To install the most up to date version of the plugin, run the following command
+To install the most up to date version of the plugin:
 
+- Install and activate conda environment with QIIME 2 (see [docs](https://docs.qiime2.org/2020.11/install/native/)), e.g. for Linux 64-bit:
 ```
+wget https://data.qiime2.org/distro/core/qiime2-2020.11-py36-linux-conda.yml
+conda env create -n qiime2-2020.11 --file qiime2-2020.11-py36-linux-conda.yml
+rm qiime2-2020.11-py36-linux-conda.yml
+source activate qiime2-2020.8
+qiime --help
+```
+Note that the plugin was tested with `qiime2-2020.8` but please use the latest version.  
+
+- Fetch the repository and go to main folder:
+```
+git clone https://github.com/bioinf-mcb/q2-health-index
+cd q2-health-index
+```
+- Install plugin: `make install`
+- Run `calculate-gmhi` action e.g. (note: merge all lines below into one!):
+```
+qiime health-index calculate-gmhi
+--i-table q2_health_index/tests/data/input/abundances/4347_final_relative_abundances.qza
+--m-metadata-file q2_health_index/tests/data/input/metadata/4347_final_metadata.tsv
+--o-gmhi-results q2_health_index/tests/data/gmhi_output
+--o-gmhi-plot q2_health_index/tests/data/gmhi_plot
+--p-healthy-states Healthy
+--p-non-healthy-states rest
+--p-healthy-column phenotype
 ```
 
 ## Tutorials
