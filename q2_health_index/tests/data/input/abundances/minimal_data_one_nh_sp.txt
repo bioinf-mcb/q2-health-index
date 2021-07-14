@@ -1,0 +1,3 @@
+	Sample1
+s__Sp_healthy	0.2344
+s__Clostridium_hathewayi	0.321
