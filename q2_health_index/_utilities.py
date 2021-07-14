@@ -61,8 +61,7 @@ def _validate_metadata_is_superset(metadata: pd.DataFrame = None,
 def _validate_and_extract_healthy_states(metadata: pd.DataFrame = None,
                                          healthy_column: str = None,
                                          healthy_states: str = None,
-                                         non_healthy_states: str = None,
-                                         ):
+                                         non_healthy_states: str = None):
     # Basic validations
     if not healthy_column:
         raise ValueError('healthy_column parameter not provided!')
