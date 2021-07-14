@@ -82,3 +82,33 @@ def calculate_gmhi(ctx,
 
     return gmhi_artifact
 
+
+def calculate_gmhi_viz(ctx,
+                       table=None,
+                       metadata=None,
+                       healthy_species_fp=None,
+                       non_healthy_species_fp=None,
+                       mh_prime=7,
+                       mn_prime=31,
+                       rel_thresh=0.00001,
+                       log_thresh=0.00001):
+
+    # Calculate GMHI
+    gmhi_artifact = calculate_gmhi(ctx, table, healthy_species_fp,
+                                   non_healthy_species_fp, mh_prime, mn_prime,
+                                   rel_thresh, log_thresh)
+
+    # Load metadata
+    metadata_df = _load_metadata(metadata)
+    # Limit metadata to samples preset in the feature table
+    table_df = table.view(pd.DataFrame).T
+    metadata_df = _validate_metadata_is_superset(metadata_df, table_df.T)
+    metadata = qiime2.Metadata(metadata_df)
+
+    # Create visualization (box plots) similar to that from alpha-diversity
+    get_alpha_diversity_plot = ctx.get_action('diversity',
+                                              'alpha_group_significance')
+    gmhi_viz = get_alpha_diversity_plot(alpha_diversity=gmhi_artifact,
+                                        metadata=metadata)
+
+    return gmhi_artifact, gmhi_viz[0]

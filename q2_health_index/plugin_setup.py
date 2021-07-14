@@ -8,7 +8,7 @@
 
 import q2_health_index
 
-from q2_health_index._gmhi import calculate_gmhi
+from q2_health_index._gmhi import calculate_gmhi, calculate_gmhi_viz
 from qiime2.plugin import (Int, Str, Float, Plugin, Citations, Metadata,
                            Visualization)
 from q2_types.feature_table import FeatureTable, Frequency, RelativeFrequency
@@ -43,11 +43,9 @@ plugin = Plugin(
     website="https://github.com/bioinf-mcb/q2-health-index",
     package='q2_health_index',
     citations=Citations.load('citations.bib', package='q2_health_index'),
-    description=('This QIIME 2 plugin calculates the Gut Microbiome Health '
-                 'Index (GMHI) created by Gupta et al. 2020 as well as '
-                 'health and non-health prevalent taxa that can be later use '
-                 'for calculating e.g. updated Gut Microbiome Health '
-                 'Index.'),
+    description=('This QIIME 2 plugin calculates and visualizes the Gut '
+                 'Microbiome Health Index (GMHI) according to the algorithm '
+                 'from Gupta et al. 2020.'),
     short_description='Plugin for calculating the Gut Microbiome Health '
                       'Index (GMHI).'
 )
@@ -67,4 +65,33 @@ plugin.pipelines.register_function(
     },
     name='Calculate GMHI',
     description='Calculate Gut Microbial Health Index based on input data. '
+)
+
+plugin.pipelines.register_function(
+    function=calculate_gmhi_viz,
+    inputs={
+        'table': FeatureTable[Frequency | RelativeFrequency],
+    },
+    parameters={
+        **basic_parameters,
+        'metadata': Metadata,
+    },
+    outputs=[
+        ('gmhi_results', SampleData[AlphaDiversity]),
+        ('gmhi_plot', Visualization)
+    ],
+    input_descriptions={'table': 'The feature frequency table to calculate '
+                                 'Gut Microbiome Health Index from.',
+                        },
+    parameter_descriptions={
+        **basic_parameters_descriptions,
+        'metadata': 'Metadata used for visualization.',
+    },
+    output_descriptions={
+        'gmhi_results': 'Calculated GMHI in tabular form.',
+        'gmhi_plot': 'Bar plot showing calculated GMHI distribution.'
+    },
+    name='Calculate GMHI',
+    description='Calculate and plot Gut Microbial Health Index based on '
+                'input data and metadata. '
 )

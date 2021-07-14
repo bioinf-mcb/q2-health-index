@@ -6,10 +6,10 @@
 # The full license is in the file LICENSE, distributed with this software.
 # -----------------------------------------------------------------------------
 
-from ._gmhi import calculate_gmhi
+from ._gmhi import calculate_gmhi, calculate_gmhi_viz
 from ._version import get_versions
 
 __version__ = get_versions()['version']
 del get_versions
 
-__all__ = ['calculate_gmhi']
+__all__ = ['calculate_gmhi', 'calculate_gmhi_viz']
