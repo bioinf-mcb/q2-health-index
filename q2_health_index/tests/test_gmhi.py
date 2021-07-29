@@ -148,7 +148,7 @@ class TestCalculateGmhi(TestPluginBase):
             table_file = self.get_data_path("input/abundances"
                                             "/minimal_data_both_false.qza")
             table = qiime2.Artifact.load(table_file)
-            res = health_index.actions.calculate_gmhi(table=table)
+            health_index.actions.calculate_gmhi(table=table)
 
     def test_calculate_gmhi_minimal_one_h_sp(self):
         with self.assertRaisesRegex(AssertionError,
@@ -156,7 +156,7 @@ class TestCalculateGmhi(TestPluginBase):
             table_file = self.get_data_path("input/abundances"
                                             "/minimal_data_one_h_sp.qza")
             table = qiime2.Artifact.load(table_file)
-            res = health_index.actions.calculate_gmhi(table=table)
+            health_index.actions.calculate_gmhi(table=table)
 
     def test_calculate_gmhi_minimal_one_nh_sp(self):
         with self.assertRaisesRegex(AssertionError,
@@ -164,7 +164,22 @@ class TestCalculateGmhi(TestPluginBase):
             table_file = self.get_data_path("input/abundances"
                                             "/minimal_data_one_nh_sp.qza")
             table = qiime2.Artifact.load(table_file)
-            res = health_index.actions.calculate_gmhi(table=table)
+            health_index.actions.calculate_gmhi(table=table)
+
+    # Feature table with full taxonomy (real-world scenario)
+
+    def test_calculate_gmhi_full_taxonomy(self):
+        table_file = self.get_data_path("input/abundances"
+                                        "/full_taxonomy_mock_feature_table.qza")
+        table = qiime2.Artifact.load(table_file)
+        res = health_index.actions.calculate_gmhi(table=table)
+        gmhi = pd.to_numeric(res[0].view(pd.Series))
+        gmhi_exp = pd.read_csv(
+            self.get_data_path("expected/mock_data_only_species.tsv"),
+            sep='\t', index_col=0, header=0, squeeze=True)
+        pdt.assert_series_equal(
+            gmhi, gmhi_exp, check_dtype=False, check_index_type=False,
+            check_series_type=False, check_names=False)
 
     # Basic examples (dataset from Gupta et al. 2020)
 

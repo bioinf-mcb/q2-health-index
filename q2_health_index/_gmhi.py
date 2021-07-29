@@ -35,8 +35,12 @@ def calculate_gmhi(ctx,
         table, = get_relative(table=table)
     assert table.type == FeatureTable[RelativeFrequency], \
         'Feature table not of the type \'RelativeFrequency\''
-    # Keep columns (rows) as samples (species)
+
+    # Keep columns (rows) as samples (taxonomies)
     table_df = table.view(pd.DataFrame).T
+
+    # Consider only species from the full taxonomy
+    table_df.index = table_df.index.str.split(';').str[-1].str.strip()
 
     # Remove unclassified and virus species - suitable both for 16S and
     # Metagenome Sequencing if valid taxonomy is provided
