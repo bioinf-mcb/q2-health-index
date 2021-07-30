@@ -43,12 +43,14 @@ Abundance table artifact on which GMHI will be computed.
 
 **Parameters:**  
 
-`--p-healthy-species-fp TEXT [optional]` Path to file with healthy species (taxonomy is based on MetaPhlAn 2).   
-`--p-non-healthy-species-fp TEXT [optional]` Path to file with non-healthy species (taxonomy is based on MetaPhlAn 2).
-`--p-mh-prime INTEGER [default: 7]` Median from the top 1% healthy samples in training dataset (see Gupta et al. 2020 Methods section).                   
-`--p-mn-prime INTEGER [default: 31]` Median from the top 1% non-healthy samples in training dataset (see Gupta et al. 2020 Methods section).                  
-`--p-rel-thresh NUMBER [default: 1e-05]` Relative frequency based threshold for discarding insignificant OTU.                     
-`--p-log-thresh NUMBER [default: 1e-05]` Normalization value for log10 in the last step of GMHI calculation.                      
+| Parameter   |  Type  |  Optional / required / default      |  Description |
+|:-----|:-----:|:-------------:|:------|
+| `--p-healthy-species-fp` | TEXT |  optional | Path to file with healthy species (taxonomy is based on MetaPhlAn 2). |
+| `--p-non-healthy-species-fp` | TEXT |    optional   |   Path to file with non-healthy species (taxonomy is based on MetaPhlAn 2). |
+| `--p-mh-prime`  | INTEGER | default: 7 |  Median from the top 1% healthy samples in training dataset (see Gupta et al. 2020 Methods section). |
+| `--p-rel-thresh` | NUMBER  | default: 1e-05 | Median from the top 1% non-healthy samples in training dataset (see Gupta et al. 2020 Methods section).  |
+| `--p-rel-thresh` | NUMBER | default: 1e-05 | Relative frequency based threshold for discarding insignificant OTU. |
+| `--p-log-thresh` | NUMBER | default: 1e-05 | Normalization value for `log10` in the last step of GMHI calculation.  |
 
 **Outputs:**
 
@@ -64,13 +66,16 @@ GMHI calculates and visualize the gut microbiome health index for each sample in
 Abundance table artifact on which GMHI will be computed.
 
 **Parameters:**  
-`--m-metadata-file METADATA [required]` Metadata used for visualization.  
-`--p-healthy-species-fp TEXT [optional]` Path to file with healthy species (taxonomy is based on MetaPhlAn 2).   
-`--p-non-healthy-species-fp TEXT [optional]` Path to file with non-healthy species (taxonomy is based on MetaPhlAn 2).
-`--p-mh-prime INTEGER [default: 7]` Median from the top 1% healthy samples in training dataset (see Gupta et al. 2020 Methods section).                   
-`--p-mn-prime INTEGER [default: 31]` Median from the top 1% non-healthy samples in training dataset (see Gupta et al. 2020 Methods section).                  
-`--p-rel-thresh NUMBER [default: 1e-05]` Relative frequency based threshold for discarding insignificant OTU.                     
-`--p-log-thresh NUMBER [default: 1e-05]` Normalization value for log10 in the last step of GMHI calculation.                      
+
+| Parameter   |  Type  |  Optional / required / default      |  Description |
+|:-----|:-----:|:-------------:|:------|
+| `--m-metadata-file METADATA` | METADATA |  required | Metadata used for visualization. |
+| `--p-healthy-species-fp` | TEXT |  optional | Path to file with healthy species (taxonomy is based on MetaPhlAn 2). |
+| `--p-non-healthy-species-fp` | TEXT |    optional   |   Path to file with non-healthy species (taxonomy is based on MetaPhlAn 2). |
+| `--p-mh-prime`  | INTEGER | default: 7 |  Median from the top 1% healthy samples in training dataset (see Gupta et al. 2020 Methods section). |
+| `--p-rel-thresh` | NUMBER  | default: 1e-05 | Median from the top 1% non-healthy samples in training dataset (see Gupta et al. 2020 Methods section).  |
+| `--p-rel-thresh` | NUMBER | default: 1e-05 | Relative frequency based threshold for discarding insignificant OTU. |
+| `--p-log-thresh` | NUMBER | default: 1e-05 | Normalization value for `log10` in the last step of GMHI calculation.  |
 
 **Outputs:**
 
@@ -115,7 +120,7 @@ the metadata file (e.g. `tsv` file) and output file names.
 **Important:** must contain description of **all** samples in the abundance table.
 
 The visualization is generated using the `alpha-group-significance` 
-function from the `q2-diversity` plugin (i.e. Kruskal–Wallis test). 
+function from the `q2-diversity` plugin (i.e. nonparametric Kruskal–Wallis test for healthy/non-healthy group comparison). 
       
 ## Contributing
 
