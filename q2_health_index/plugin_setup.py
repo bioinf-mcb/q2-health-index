@@ -25,12 +25,14 @@ basic_parameters = {
     }
 
 basic_parameters_descriptions = {
-        'healthy_species_fp': 'Path to file with healthy species.',
-        'non_healthy_species_fp': 'Path to file with non-healthy species.',
-        'mh_prime': 'Median from the top k_H samples (see Gupta et al. 2020 '
-                    'paper for details).',
-        'mn_prime': 'Median from the top k_N samples (see Gupta et al. 2020 '
-                    'paper for details).',
+        'healthy_species_fp': 'Path to file with healthy species (taxonomy ' 
+                              'is based on MetaPhlAn 2).',
+        'non_healthy_species_fp': 'Path to file with non-healthy species ' 
+                                  '(taxonomy is based on MetaPhlAn 2).',
+        'mh_prime': 'Median from the top 1% healthy samples in training  '
+                    'dataset (see Gupta et al. 2020 Methods section).',
+        'mn_prime': 'Median from the top 1% non-healthy samples in training '
+                    'dataset (see Gupta et al. 2020 Methods section).',
         'rel_thresh': 'Relative frequency based threshold for discarding '
                       'insignificant OTU.',
         'log_thresh': 'Normalization value for log10 in the last step of '
@@ -85,13 +87,13 @@ plugin.pipelines.register_function(
                         },
     parameter_descriptions={
         **basic_parameters_descriptions,
-        'metadata': 'Metadata used for visualization.',
+        'metadata': 'Metadata used for visualization [REQUIRED].',
     },
     output_descriptions={
         'gmhi_results': 'Calculated GMHI in tabular form.',
         'gmhi_plot': 'Bar plot showing calculated GMHI distribution.'
     },
-    name='Calculate GMHI',
+    name='Calculate & visualize GMHI',
     description='Calculate and plot Gut Microbial Health Index based on '
                 'input data and metadata. '
 )
