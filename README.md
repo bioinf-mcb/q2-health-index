@@ -2,6 +2,8 @@
 
 QIIME 2 plugin for calculating the Health Index from microbiome data.
 
+The official doc might be found [here](https://library.qiime2.org/plugins/q2-health-index/37/).
+
 ## About
 
 This plugin is based on the Gut Microbiome Health Index (GMHI) created by [Gupta et al. 2020](https://www.nature.com/articles/s41467-020-18476-8).
@@ -117,11 +119,28 @@ the metadata file (e.g. `tsv` file) and output file names.
   --o-gmhi-plot q2_health_index/tests/data/gmhi_plot
   ```
 
-**Important:** must contain description of **all** samples in the abundance table.
+**Important:** feature table must contain description of **all** samples in the abundance table.
 
 The visualization is generated using the `alpha-group-significance` 
 function from the `q2-diversity` plugin (i.e. nonparametric Kruskal–Wallis test for healthy/non-healthy group comparison). 
-      
+Basically, it is equivalent to running the two below commands separately:
+```
+qiime health-index calculate-gmhi \
+--i-table q2_health_index/tests/data/input/abundances/4347_final_relative_abundances.qza \
+--o-gmhi-results q2_health_index/tests/data/gmhi_output
+```
+```
+qiime diversity alpha-group-significance \
+--i-alpha-diversity q2_health_index/tests/data/gmhi_output.qza  \
+--m-metadata-file q2_health_index/tests/data/input/metadata/4347_final_metadata.tsv \
+--o-visualization q2_health_index/tests/data/gmhi_plot
+```
+
+In both cases you should get the same output (`qza` and `qzv` artifacts): [gmhi_output.zip](https://github.com/bioinf-mcb/q2-health-index/files/7038968/gmhi_output.zip)
+
+After dropping the visualisation (`qzv`) into the [Qiime 2 View](https://view.qiime2.org/) you should see something like that:
+![image](https://user-images.githubusercontent.com/35655004/130615176-b5ed4e95-19f8-4ab2-865a-0c0f5d6483c0.png)
+
 ## Contributing
 
 QIIME 2 is an open-source project, and we are very interested in contributions from the community.  
