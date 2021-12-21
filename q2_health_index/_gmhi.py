@@ -16,6 +16,73 @@ from q2_health_index._utilities import (_load_and_validate_species,
                                         _validate_metadata_is_superset)
 
 
+def gmhi_fit(train_df: pd.DataFrame, 
+            train_labels: np.ndarray, 
+            theta_f: float, 
+            theta_d: float):
+    '''
+    Fits the function to the available training set with parameters theta_f and theta_d
+    Parameters
+    ----------
+    train_df : pd.DataFrame
+        Dataframe with index as samples and columns as features (species).
+    train_labels : np.ndarray
+        An array for binary categorical target variable (healthy and npn-healthy in the article) 
+        encoded as 0 and 1.
+    theta_f : float
+        Fold difference between proportion of samples with relevant species present in it for a bianry state. 
+        Defines relevant features for binary states. 
+    theta_f : float
+        Difference between proportion of samples with relevant species present in it for a bianry state.
+        Defines relevant species for binary states. 
+    '''
+    # Extracting healthy and non-healthy cohorts form dataframe
+    Healthy = train_df.iloc[train_labels]
+    Nonhealthy = train_df.iloc[~train_labels]
+
+    # Transposing similarly to article 
+    Healthy = Healthy.T
+    Nonhealthy = Nonhealthy.T
+    
+    # Calculating the proportion of samples with species present
+    PH = (Healthy > 0).sum(axis=1) * 100 / Healthy.shape[1]
+    PNH = (Nonhealthy > 0).sum(axis=1) * 100 / Nonhealthy.shape[1]
+    
+    # Deriving fold and normal differences
+    PH_diff = (PH-PNH)
+    PH_fold = (PH/PNH)
+    PNH_fold = (PNH/PH)
+    
+    # Masking only species defined as important for health state by parameters
+    H_signature = train_df.loc[:, (PH_fold >= theta_f) & (PH_diff >= theta_d)].T
+    NH_signature = train_df.loc[:, (PNH_fold >= theta_f) &(PH_diff <= -theta_d)].T
+    
+    # Extracting lists of species
+    healthy_species_list = list(H_signature.index)
+    nonhealthy_species_list = list(NH_signature.index)
+    
+    # Deriving counts
+    H_sig_count = (H_signature > 0).sum(axis=0)
+    H_sig_count.name = "H_sig_count"
+    NH_sig_count = (NH_signature > 0).sum(axis=0)
+    NH_sig_count.name = "NH_sig_count"
+
+    constant = pd.concat([H_sig_count, NH_sig_count], axis=1)
+  
+    # MH_prime
+    HC1 = constant.sort_values(by = ["H_sig_count", "NH_sig_count"], ascending=[False, True])
+    H_constant = HC1["H_sig_count"][:(int(Healthy.shape[1] / 100))].median()
+    
+    # MN_prime
+    NHC1 = constant.sort_values(by = ["H_sig_count", "NH_sig_count"], ascending=[True, False])
+    NH_constant = NHC1["NH_sig_count"][:(int(Nonhealthy.shape[1] / 100))].median() 
+    
+    return (healthy_species_list, 
+            nonhealthy_species_list,
+            H_constant, 
+            NH_constant)
+
+
 def calculate_gmhi(ctx,
                    table=None,
                    healthy_species_fp=None,
