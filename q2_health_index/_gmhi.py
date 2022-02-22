@@ -16,72 +16,12 @@ from q2_health_index._utilities import (_load_and_validate_species,
                                         _validate_metadata_is_superset)
 
 
-def gmhi_fit(train_df: pd.DataFrame, 
-            train_labels: np.ndarray, 
-            theta_f: float, 
-            theta_d: float):
-    '''
-    Fits the function to the available training set with parameters theta_f and theta_d
-    Parameters
-    ----------
-    train_df : pd.DataFrame
-        Dataframe with index as samples and columns as features (species).
-    train_labels : np.ndarray
-        An array for binary categorical target variable (healthy and npn-healthy in the article) 
-        encoded as 0 and 1.
-    theta_f : float
-        Fold difference between proportion of samples with relevant species present in it for a bianry state. 
-        Defines relevant features for binary states. 
-    theta_f : float
-        Difference between proportion of samples with relevant species present in it for a bianry state.
-        Defines relevant species for binary states. 
-    '''
-    # Extracting healthy and non-healthy cohorts form dataframe
-    Healthy = train_df.iloc[train_labels]
-    Nonhealthy = train_df.iloc[~train_labels]
-
-    # Transposing similarly to article 
-    Healthy = Healthy.T
-    Nonhealthy = Nonhealthy.T
+def shannon_alpha_div(data):
+    """
+    Calculate Shannon diversity from data
+    """
+    return -1 * np.sum(np.log(data) * (data))
     
-    # Calculating the proportion of samples with species present
-    PH = (Healthy > 0).sum(axis=1) * 100 / Healthy.shape[1]
-    PNH = (Nonhealthy > 0).sum(axis=1) * 100 / Nonhealthy.shape[1]
-    
-    # Deriving fold and normal differences
-    PH_diff = (PH-PNH)
-    PH_fold = (PH/PNH)
-    PNH_fold = (PNH/PH)
-    
-    # Masking only species defined as important for health state by parameters
-    H_signature = train_df.loc[:, (PH_fold >= theta_f) & (PH_diff >= theta_d)].T
-    NH_signature = train_df.loc[:, (PNH_fold >= theta_f) &(PH_diff <= -theta_d)].T
-    
-    # Extracting lists of species
-    healthy_species_list = list(H_signature.index)
-    nonhealthy_species_list = list(NH_signature.index)
-    
-    # Deriving counts
-    H_sig_count = (H_signature > 0).sum(axis=0)
-    H_sig_count.name = "H_sig_count"
-    NH_sig_count = (NH_signature > 0).sum(axis=0)
-    NH_sig_count.name = "NH_sig_count"
-
-    constant = pd.concat([H_sig_count, NH_sig_count], axis=1)
-  
-    # MH_prime
-    HC1 = constant.sort_values(by = ["H_sig_count", "NH_sig_count"], ascending=[False, True])
-    H_constant = HC1["H_sig_count"][:(int(Healthy.shape[1] / 100))].median()
-    
-    # MN_prime
-    NHC1 = constant.sort_values(by = ["H_sig_count", "NH_sig_count"], ascending=[True, False])
-    NH_constant = NHC1["NH_sig_count"][:(int(Nonhealthy.shape[1] / 100))].median() 
-    
-    return (healthy_species_list, 
-            nonhealthy_species_list,
-            H_constant, 
-            NH_constant)
-
 
 def calculate_gmhi(ctx,
                    table=None,
@@ -103,28 +43,28 @@ def calculate_gmhi(ctx,
     assert table.type == FeatureTable[RelativeFrequency], \
         'Feature table not of the type \'RelativeFrequency\''
 
-    # Keep columns as samples, rows as taxonomies
-    table_df = table.view(pd.DataFrame).T
+    # Keep columns as samples, rows as taxonomical species names
+    table_df = table.view(pd.DataFrame)
 
     # Consider only species from the full taxonomy
-    table_df.index = table_df.index.str.split(';').str[-1].str.strip()
+    table_df.columns = table_df.columns.str.split(';').str[-1].str.strip()
 
     # Remove unclassified and virus species - suitable both for 16S and
     # Metagenome Sequencing if valid taxonomy is provided
-    na_species = table_df.index.str.contains('unclassified|virus', regex=True)
-    species_profile_2 = table_df[~na_species]
+    na_species = table_df.columns.str.contains('unclassified|virus', regex=True)
+    species_profile_2 = table_df.loc[:, ~na_species]
 
     # Re-normalization of species' relative abundances after removing
     # unclassified and virus species
-    species_profile_3 = species_profile_2.apply(lambda x: x / x.sum(), axis=0)
+    species_profile_3 = species_profile_2.apply(lambda x: x / x.sum(), axis=1)
     species_profile_3[species_profile_3 < rel_thresh] = 0
 
     # Extracting Health-prevalent species
-    MH_species = species_profile_3[
-        species_profile_3.index.isin(healthy_species_list)]
+    MH_species = species_profile_3.loc[:,
+        species_profile_3.columns.isin(healthy_species_list)]
     # Extracting Health-scarce species
-    MN_species = species_profile_3[
-        species_profile_3.index.isin(non_healthy_species_list)]
+    MN_species = species_profile_3.loc[:, 
+        species_profile_3.columns.isin(non_healthy_species_list)]
 
     assert not MH_species.empty, \
         "Could not find healthy species in the feature table."
@@ -134,13 +74,13 @@ def calculate_gmhi(ctx,
     # Shannon index + Alpha diversity
     MH_not_zero = MH_species[MH_species > 0]
     MN_not_zero = MN_species[MN_species > 0]
-    MH_shannon = MH_not_zero.apply(lambda x: -np.sum(np.log(x) * x), axis=0)
-    MN_shannon = MN_not_zero.apply(lambda x: -np.sum(np.log(x) * x), axis=0)
+    MH_shannon = MH_not_zero.apply(shannon_alpha_div, axis=1)
+    MN_shannon = MN_not_zero.apply(shannon_alpha_div, axis=1)
 
     # Richness of Health-prevalent species
-    R_MH = MH_not_zero.count()
+    R_MH = MH_not_zero.count(axis=1)
     # Richness of Health-scarce species
-    R_MN = MN_not_zero.count()
+    R_MN = MN_not_zero.count(axis=1)
 
     psi_MH = (R_MH / mh_prime) * MH_shannon
     psi_MN = (R_MN / mn_prime) * MN_shannon
@@ -172,8 +112,8 @@ def calculate_gmhi_viz(ctx,
     # Load metadata
     metadata_df = _load_metadata(metadata)
     # Limit metadata to samples preset in the feature table
-    table_df = table.view(pd.DataFrame).T
-    metadata_df = _validate_metadata_is_superset(metadata_df, table_df.T)
+    table_df = table.view(pd.DataFrame)
+    metadata_df = _validate_metadata_is_superset(metadata_df, table_df)
     metadata = qiime2.Metadata(metadata_df)
 
     # Create visualization (box plots) similar to that from alpha-diversity
