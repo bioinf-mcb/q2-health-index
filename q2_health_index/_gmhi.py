@@ -18,19 +18,19 @@ from q2_health_index._utilities import (_load_and_validate_species,
 
 def shannon_alpha_div(data):
     """
-    Calculate Shannon diversity from data
+    Calculate Shannon diversity from sample data
     """
     return -1 * np.sum(np.log(data) * (data))
     
 
-def calculate_gmhi(ctx,
-                   table=None,
-                   healthy_species_fp=None,
-                   non_healthy_species_fp=None,
-                   mh_prime=7,
-                   mn_prime=31,
-                   rel_thresh=0.00001,
-                   log_thresh=0.00001):
+def gmhi_predict(ctx,
+                 table=None,
+                 healthy_species_fp=None,
+                 non_healthy_species_fp=None,
+                 mh_prime=7,
+                 mn_prime=31,
+                 rel_thresh=0.00001,
+                 log_thresh=0.00001):
 
     # Load and validate species lists
     healthy_species_list, non_healthy_species_list = \
@@ -94,20 +94,20 @@ def calculate_gmhi(ctx,
     return gmhi_artifact
 
 
-def calculate_gmhi_viz(ctx,
-                       table=None,
-                       metadata=None,
-                       healthy_species_fp=None,
-                       non_healthy_species_fp=None,
-                       mh_prime=7,
-                       mn_prime=31,
-                       rel_thresh=0.00001,
-                       log_thresh=0.00001):
+def gmhi_predict_viz(ctx,
+                     table=None,
+                     metadata=None,
+                     healthy_species_fp=None,
+                     non_healthy_species_fp=None,
+                     mh_prime=7,
+                     mn_prime=31,
+                     rel_thresh=0.00001,
+                     log_thresh=0.00001):
 
     # Calculate GMHI
-    gmhi_artifact = calculate_gmhi(ctx, table, healthy_species_fp,
-                                   non_healthy_species_fp, mh_prime, mn_prime,
-                                   rel_thresh, log_thresh)
+    gmhi_artifact = gmhi_predict(ctx, table, healthy_species_fp,
+                                 non_healthy_species_fp, mh_prime, mn_prime,
+                                 rel_thresh, log_thresh)
 
     # Load metadata
     metadata_df = _load_metadata(metadata)

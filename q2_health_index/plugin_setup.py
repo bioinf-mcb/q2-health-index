@@ -8,7 +8,7 @@
 
 import q2_health_index
 
-from q2_health_index._gmhi import calculate_gmhi, calculate_gmhi_viz
+from q2_health_index._gmhi import gmhi_predict, gmhi_predict_viz
 from qiime2.plugin import (Int, Str, Float, Plugin, Citations, Metadata,
                            Visualization)
 from q2_types.feature_table import FeatureTable, Frequency, RelativeFrequency
@@ -53,7 +53,7 @@ plugin = Plugin(
 )
 
 plugin.pipelines.register_function(
-    function=calculate_gmhi,
+    function=gmhi_predict,
     inputs={'table': FeatureTable[Frequency | RelativeFrequency]},
     parameters=basic_parameters,
     outputs=[
@@ -70,7 +70,7 @@ plugin.pipelines.register_function(
 )
 
 plugin.pipelines.register_function(
-    function=calculate_gmhi_viz,
+    function=gmhi_predict_viz,
     inputs={
         'table': FeatureTable[Frequency | RelativeFrequency],
     },
