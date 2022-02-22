@@ -68,3 +68,5 @@ notebooks/.ipynb_checkpoints
 
 # User-stuff
 .idea/
+.vscode/
+test.qza

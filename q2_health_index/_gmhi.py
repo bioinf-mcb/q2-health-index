@@ -103,7 +103,7 @@ def calculate_gmhi(ctx,
     assert table.type == FeatureTable[RelativeFrequency], \
         'Feature table not of the type \'RelativeFrequency\''
 
-    # Keep columns (rows) as samples (taxonomies)
+    # Keep columns as samples, rows as taxonomies
     table_df = table.view(pd.DataFrame).T
 
     # Consider only species from the full taxonomy
@@ -183,3 +183,4 @@ def calculate_gmhi_viz(ctx,
                                         metadata=metadata)
 
     return gmhi_artifact, gmhi_viz[0]
+    
