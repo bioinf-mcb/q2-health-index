@@ -124,16 +124,16 @@ class TestUtilities(TestPluginBase):
             _validate_metadata_is_superset(metadata, table)
 
 
-class TestCalculateGmhi(TestPluginBase):
+class TestPredictGmhi(TestPluginBase):
     package = 'q2_health_index.tests'
 
     # Minimal cases (only one H/N species present in the abundance table)
 
-    def test_calculate_gmhi_minimal_both_sp(self):
+    def test_gmhi_predict_minimal_both_sp(self):
         table_file = self.get_data_path("input/abundances"
                                         "/minimal_data_both_sp.qza")
         table = qiime2.Artifact.load(table_file)
-        res = health_index.actions.calculate_gmhi(table=table)
+        res = health_index.actions.gmhi_predict(table=table)
         gmhi = pd.to_numeric(res[0].view(pd.Series))
         gmhi_exp = pd.read_csv(
             self.get_data_path("expected/minimal_data_both_sp.tsv"),
@@ -142,37 +142,37 @@ class TestCalculateGmhi(TestPluginBase):
             gmhi, gmhi_exp, check_dtype=False, check_index_type=False,
             check_series_type=False, check_names=False)
 
-    def test_calculate_gmhi_minimal_both_false(self):
+    def test_gmhi_predict_minimal_both_false(self):
         with self.assertRaisesRegex(AssertionError,
                                     "Could not find healthy species"):
             table_file = self.get_data_path("input/abundances"
                                             "/minimal_data_both_false.qza")
             table = qiime2.Artifact.load(table_file)
-            health_index.actions.calculate_gmhi(table=table)
+            health_index.actions.gmhi_predict(table=table)
 
-    def test_calculate_gmhi_minimal_one_h_sp(self):
+    def test_gmhi_predict_minimal_one_h_sp(self):
         with self.assertRaisesRegex(AssertionError,
                                     "Could not find non-healthy species"):
             table_file = self.get_data_path("input/abundances"
                                             "/minimal_data_one_h_sp.qza")
             table = qiime2.Artifact.load(table_file)
-            health_index.actions.calculate_gmhi(table=table)
+            health_index.actions.gmhi_predict(table=table)
 
-    def test_calculate_gmhi_minimal_one_nh_sp(self):
+    def test_gmhi_predict_minimal_one_nh_sp(self):
         with self.assertRaisesRegex(AssertionError,
                                     "Could not find healthy species"):
             table_file = self.get_data_path("input/abundances"
                                             "/minimal_data_one_nh_sp.qza")
             table = qiime2.Artifact.load(table_file)
-            health_index.actions.calculate_gmhi(table=table)
+            health_index.actions.gmhi_predict(table=table)
 
     # Feature table with full taxonomy (real-world scenario)
 
-    def test_calculate_gmhi_full_taxonomy(self):
+    def test_gmhi_predict_full_taxonomy(self):
         table_file = self.get_data_path("input/abundances"
                                         "/full_taxonomy_mock_feature_table.qza")
         table = qiime2.Artifact.load(table_file)
-        res = health_index.actions.calculate_gmhi(table=table)
+        res = health_index.actions.gmhi_predict(table=table)
         gmhi = pd.to_numeric(res[0].view(pd.Series))
         gmhi_exp = pd.read_csv(
             self.get_data_path("expected/mock_data_only_species.tsv"),
@@ -183,11 +183,11 @@ class TestCalculateGmhi(TestPluginBase):
 
     # Basic examples (dataset from Gupta et al. 2020)
 
-    def test_calculate_gmhi_4347_final(self):
+    def test_gmhi_predict_4347_final(self):
         table_file = self.get_data_path("input/abundances"
                                         "/4347_final_relative_abundances.qza")
         table = qiime2.Artifact.load(table_file)
-        res = health_index.actions.calculate_gmhi(table=table)
+        res = health_index.actions.gmhi_predict(table=table)
         gmhi = pd.to_numeric(res[0].view(pd.Series))
         gmhi_exp = pd.read_csv(
             self.get_data_path("expected/4347_final_gmhi_Python.tsv"),
@@ -196,14 +196,14 @@ class TestCalculateGmhi(TestPluginBase):
             gmhi, gmhi_exp, check_dtype=False, check_index_type=False,
             check_series_type=False, check_names=False)
 
-    def test_calculate_gmhi_viz_4347_final(self):
+    def test_gmhi_predict_viz_4347_final(self):
         table_file = self.get_data_path("input/abundances"
                                         "/4347_final_relative_abundances.qza")
         metadata_file = self.get_data_path("input/metadata"
                                            "/4347_final_metadata.tsv")
         table = qiime2.Artifact.load(table_file)
         metadata = qiime2.Metadata.load(metadata_file)
-        res = health_index.actions.calculate_gmhi_viz(table=table,
+        res = health_index.actions.gmhi_predict_viz(table=table,
                                                       metadata=metadata)
         gmhi = pd.to_numeric(res[0].view(pd.Series))
         gmhi_exp = pd.read_csv(

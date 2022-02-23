@@ -34,9 +34,9 @@ Note that the plugin was tested with `qiime2-2021.4` but please use the latest v
 
 ## CLI parameters description
 
-### Calculate GMHI
-**Usage:** `qiime health-index calculate-gmhi [OPTIONS]`  
-GMHI calculates the gut microbiome health index for each sample in the abundance table. 
+### Predict GMHI
+**Usage:** `qiime health-index gmhi-predict [OPTIONS]`  
+GMHI predicts the gut microbiome health index for each sample in the abundance table. 
 
 **Inputs:**  
 
@@ -56,11 +56,11 @@ Abundance table artifact on which GMHI will be computed.
 
 **Outputs:**
 
-`--o-gmhi-results	ARTIFACT SampleData[AlphaDiversity]` Calculated GMHI in tabular form.
+`--o-gmhi-results	ARTIFACT SampleData[AlphaDiversity]` Predicted GMHI in tabular form.
 
-### Calculate and visualize GMHI
-**Usage:** `qiime health-index calculate-gmhi-viz [OPTIONS]`  
-GMHI calculates and visualize the gut microbiome health index for each sample in the abundance table. 
+### Predict and visualize GMHI
+**Usage:** `qiime health-index gmhi-predict-viz [OPTIONS]`  
+Predict and visualize the gut microbiome health index for each sample in the abundance table. 
 
 **Inputs:**  
 
@@ -81,8 +81,8 @@ Abundance table artifact on which GMHI will be computed.
 
 **Outputs:**
 
-`--o-gmhi-results	ARTIFACT SampleData[AlphaDiversity]` Calculated GMHI in tabular form.  
-`--o-gmhi-plot VISUALIZATION` Bar plot showing calculated GMHI distribution.
+`--o-gmhi-results	ARTIFACT SampleData[AlphaDiversity]` Predictedd GMHI in tabular form.  
+`--o-gmhi-plot VISUALIZATION` Bar plot showing predicted GMHI distribution.
 
 ## Tutorials
 
@@ -90,21 +90,21 @@ This is a QIIME 2 plugin. For details on QIIME 2 see [documentation](https://doc
 
 **Note:** in the examples below all paths are related to the main repository directory.
 
-### Calculate GMHI
+### Predict GMHI
 
 In order to compute the GMHI (as a `qza` artifact) you need to provide the abundance table (`qza` artifact of the type 
 `FeatureTable[Frequency] or FeatureTable[RelativeFrequency]`) and output file name. 
 
 - Example:
   ```
-  qiime health-index calculate-gmhi \
+  qiime health-index gmhi-predict \
   --i-table q2_health_index/tests/data/input/abundances/4347_final_relative_abundances.qza \
   --o-gmhi-results q2_health_index/tests/data/gmhi_output
   ```
   
 **Important:** feature table must contain at least one healthy and non-healthy species.
 
-### Calculate and visualize GMHI
+### Predict and visualize GMHI
 
 In order to compute and visualize the GMHI (in the form of  `qza` and `qzv` artifacts) you need to provide the 
 abundance table (`qza` artifact of the type `FeatureTable[Frequency] or FeatureTable[RelativeFrequency]`),
@@ -112,7 +112,7 @@ the metadata file (e.g. `tsv` file) and output file names.
 
 - Example:
   ```
-  qiime health-index calculate-gmhi-viz \
+  qiime health-index gmhi-predict-viz \
   --i-table q2_health_index/tests/data/input/abundances/4347_final_relative_abundances.qza \
   --m-metadata-file q2_health_index/tests/data/input/metadata/4347_final_metadata.tsv \
   --o-gmhi-results q2_health_index/tests/data/gmhi_output \
@@ -125,7 +125,7 @@ The visualization is generated using the `alpha-group-significance`
 function from the `q2-diversity` plugin (i.e. nonparametric Kruskal–Wallis test for healthy/non-healthy group comparison). 
 Basically, it is equivalent to running the two below commands separately:
 ```
-qiime health-index calculate-gmhi \
+qiime health-index gmhi-predict \
 --i-table q2_health_index/tests/data/input/abundances/4347_final_relative_abundances.qza \
 --o-gmhi-results q2_health_index/tests/data/gmhi_output
 ```
