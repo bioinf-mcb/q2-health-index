@@ -43,7 +43,7 @@ def gmhi_predict(ctx,
     assert table.type == FeatureTable[RelativeFrequency], \
         'Feature table not of the type \'RelativeFrequency\''
 
-    # Keep columns as samples, rows as taxonomical species names
+    # Keep rows as samples, columns as taxonomical species names
     table_df = table.view(pd.DataFrame)
 
     # Consider only species from the full taxonomy
