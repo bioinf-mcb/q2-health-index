@@ -1,0 +1,50 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Miniconda
+      uses: conda-incubator/setup-miniconda@v2
+    - name: Install Mamba
+      run: |
+        conda install mamba -n base -c conda-forge
+    - name: Install Qiime2, pytest and flake8
+      run: |
+        wget https://data.qiime2.org/distro/core/qiime2-2022.2-py38-linux-conda.yml
+        mamba env create -n qiime2-2022.2 --file qiime2-2022.2-py38-linux-conda.yml
+        conda activate qiime2
+        python -m pip install --upgrade pip
+        pip install flake8 pytest pytest-parallel
+    - name: Lint with flake8
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    - name: Test with pytest
+      run: |
+        pytest q2_health_index/tests/test_gmhi.py --workers 4
