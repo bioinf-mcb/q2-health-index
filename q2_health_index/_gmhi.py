@@ -6,11 +6,15 @@
 # The full license is in the file LICENSE, distributed with this software.
 # -----------------------------------------------------------------------------
 
+import os
 import qiime2
 import numpy as np
 import pandas as pd
 
 from q2_types.feature_table import FeatureTable, Frequency, RelativeFrequency
+from qiime2 import Metadata
+from typing import Union
+
 from q2_health_index._utilities import (_load_and_validate_species,
                                         _load_metadata,
                                         _validate_metadata_is_superset)
@@ -21,7 +25,88 @@ def shannon_alpha_div(data):
     Calculate Shannon diversity from sample data
     """
     return -1 * np.sum(np.log(data) * (data))
+
+
+def gmhi_fit(ctx,
+             output_dir: str = None,
+             table: str = None,
+             metadata: str = None,
+             metadata_column: str = None,
+             theta_f:float = 1.4,
+             theta_d:float = 10):
     
+    # Load and convert feature table (if needed)
+    if table.type == FeatureTable[Frequency]:
+        get_relative = ctx.get_action('feature_table', 'relative_frequency')
+        table, = get_relative(table=table)
+    assert table.type == FeatureTable[RelativeFrequency], \
+        'Feature table not of the type \'RelativeFrequency\''
+
+    # Keep index as samples, columns as taxonomical species names
+    table_df = table.view(pd.DataFrame)
+
+    # Consider only species from the full taxonomy
+    table_df.columns = table_df.columns.str.split(';').str[-1].str.strip()
+    
+    # Load metadata and extract target column
+    metadata_df = _load_metadata(metadata)
+    target_column = metadata_df[metadata_column]
+    
+    # Check if target column is a binary or boolean
+    if target_column.dtype == bool:
+        target_column = target_column.astype(int)
+    assert target_column.dtype == int, \
+        "Metadata column must be binary or boolean variable."
+
+
+    # Extracting healthy and non-healthy cohorts form dataframe
+    Healthy = table_df.iloc[target_column]
+    Nonhealthy = table_df.iloc[~target_column]
+
+    PH = (Healthy > 0).sum(axis=0) * 100 / Healthy.shape[0]
+    PNH = (Nonhealthy > 0).sum(axis=0) * 100 / Nonhealthy.shape[0]
+
+    # Deriving fold and normal differences
+    PH_diff = (PH-PNH)
+    PH_fold = (PH/PNH)
+    PNH_fold = (PNH/PH)
+
+    # Masking only species defined as important for health state by parameters
+    H_signature = table_df.loc[:, (PH_fold >= theta_f) & (PH_diff >= theta_d)]
+    NH_signature = table_df.loc[:, (PNH_fold >= theta_f) & (PH_diff <= -theta_d)]
+
+    # Extracting lists of species
+    healthy_species_list = list(H_signature.columns)
+    nonhealthy_species_list = list(NH_signature.columns)
+    
+    # Deriving counts
+    H_sig_count = (H_signature > 0).sum(axis=1)
+    H_sig_count.name = "H_sig_count"
+    NH_sig_count = (NH_signature > 0).sum(axis=1)
+    NH_sig_count.name = "NH_sig_count"
+    
+    constant = pd.concat([H_sig_count, NH_sig_count], axis=1)
+  
+    # MH_prime
+    HC1 = constant.sort_values(by = ["H_sig_count", "NH_sig_count"], ascending=[False, True])
+    H_constant = HC1["H_sig_count"][:(int(Healthy.shape[0] / 100))].median()
+
+    # MN_prime
+    NHC1 = constant.sort_values(by = ["H_sig_count", "NH_sig_count"], ascending=[True, False])
+    NH_constant = NHC1["NH_sig_count"][:(int(Nonhealthy.shape[0] / 100))].median() 
+    
+    # Saving results
+    if output_dir is not None:
+        healthy_species_list_fp = os.path.join(output_dir, "healthy_species_list.txt")
+        nonhealthy_species_list_fp = os.path.join(output_dir, "nonhealthy_species_list.txt")
+        contstants_fp = os.path.join(output_dir, "constants.txt")
+        with open(healthy_species_list_fp, "w") as f:
+            f.write("\n".join(healthy_species_list))
+        with open(nonhealthy_species_list_fp, "w") as f:
+            f.write("\n".join(nonhealthy_species_list))
+        with open(contstants_fp, "w") as f:
+            f.write(f"H_constant: {H_constant}\nNH_constant: {NH_constant}")
+
 
 def gmhi_predict(ctx,
                  table=None,
@@ -43,7 +128,7 @@ def gmhi_predict(ctx,
     assert table.type == FeatureTable[RelativeFrequency], \
         'Feature table not of the type \'RelativeFrequency\''
 
-    # Keep rows as samples, columns as taxonomical species names
+    # Keep index as samples, columns as taxonomical species names
     table_df = table.view(pd.DataFrame)
 
     # Consider only species from the full taxonomy
