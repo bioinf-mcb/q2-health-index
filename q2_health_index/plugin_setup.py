@@ -8,7 +8,7 @@
 
 import q2_health_index
 
-from q2_health_index._gmhi import gmhi_predict, gmhi_predict_viz
+from q2_health_index._gmhi import gmhi_fit, gmhi_predict, gmhi_predict_viz
 from qiime2.plugin import (Int, Str, Float, Plugin, Citations, Metadata,
                            Visualization)
 from q2_types.feature_table import FeatureTable, Frequency, RelativeFrequency
@@ -50,6 +50,26 @@ plugin = Plugin(
                  'from Gupta et al. 2020.'),
     short_description='Plugin for calculating the Gut Microbiome Health '
                       'Index (GMHI).'
+)
+
+plugin.pipelines.register_function(
+    function=gmhi_fit,
+    inputs={'table': FeatureTable[Frequency | RelativeFrequency]},
+    parameters={
+                'metadata': Metadata,
+                'metadata_column': Str,
+                'theta_f': Float,
+                'theta_d': Float,
+                'output_dir': Str,
+               },
+    outputs=[
+        ('gmhi_results', SampleData[AlphaDiversity]),
+    ],
+    input_descriptions={'table': ''},
+    parameter_descriptions={},
+    output_descriptions={},
+    name='Fit GMHI',
+    description=''
 )
 
 plugin.pipelines.register_function(
