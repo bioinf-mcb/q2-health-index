@@ -42,8 +42,8 @@ def get_config():
     cfg.VCS = "git"
     cfg.style = "pep440"
     cfg.tag_prefix = ""
-    cfg.parentdir_prefix = "q2-emperor-"
-    cfg.versionfile_source = "q2_emperor/_version.py"
+    cfg.parentdir_prefix = "q2-health-index-"
+    cfg.versionfile_source = "q2_health_index/_version.py"
     cfg.verbose = False
     return cfg
 
